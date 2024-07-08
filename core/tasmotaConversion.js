@@ -6,7 +6,7 @@ function tasmotaHandleResult(response) {
     for (const entity of response.result) {
       const currentEntity = tasmotaEntities[entity.entity_id];
       if (!currentEntity) continue;
-      writeToTasmotaSerialCommand(currentEntity.relayBoard,  entity.state.toUpperCase(), currentEntity.serialConfig ?? 0);
+      writeToTasmotaSerialCommand(currentEntity.relayBoard,  entity.state === "on" ? 1 : 0, currentEntity.serialConfig ?? 0);
     }
   }
 }
