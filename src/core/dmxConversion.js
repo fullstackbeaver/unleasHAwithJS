@@ -1,4 +1,4 @@
-const { DMXentities, DMXsteps, DMXtransitionDuration } = require("../settings.json");
+const { DMXentities, DMXsteps, DMXtransitionDuration } = require("../../settings.json");
 const { writeToDMX }                                   = require("../ports/dmxOutput");
 
 const intervales  = DMXtransitionDuration / DMXsteps;

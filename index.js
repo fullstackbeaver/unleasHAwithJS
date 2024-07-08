@@ -1,5 +1,6 @@
-const { addActionOnWebsocket, type }              = require("./ports/websocket");
-const { dmxHandleResult, dmxHandleEvent }         = require("./core/dmxConversion");
+const { addActionOnWebsocket, type }      = require("./src/ports/websocket");
+const { dmxHandleResult, dmxHandleEvent } = require("./src/core/dmxConversion");
+const { writeToDMX }                      = require("./src/ports/dmxOutput");
 
 // addActionOnWebsocket(type.event,  dmxHandleEvent);
 // addActionOnWebsocket(type.event,  tasmotaHandleEvent);
@@ -8,10 +9,9 @@ const { dmxHandleResult, dmxHandleEvent }         = require("./core/dmxConversio
 // addActionOnWebsocket(type.result, tasmotaHandleResult);
 
 
-const { writeToDMX }                                   = require("./ports/dmxOutput");
 
 let toggle = false;
 setInterval(() => {
   toggle = !toggle;
-  writeToDMX([toggle ? 255 : 0]);
+  writeToDMX(`1c${toggle ? 255 : 0}w`);
 }, 2000)

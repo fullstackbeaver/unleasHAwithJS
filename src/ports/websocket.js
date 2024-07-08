@@ -1,4 +1,4 @@
-const { homeAssistantAddress, token } = require("../settings.json");
+const { homeAssistantAddress, token } = require("../../settings.json");
 const WebSocket                       = require("ws");
 
 const cbsResult = [];
