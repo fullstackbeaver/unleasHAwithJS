@@ -1,0 +1,136 @@
+{
+  "vr_etg": {
+    "address": 22
+  },
+  "vr_salon_porte_fenetre": {
+    "address": 23
+  },
+  "vr_salon_fenetre": {
+    "address": 24
+  },
+  "vr_cuisine_baie_vitree": {
+    "address": 25
+  },
+  "vr_chbre_leo": {
+    "address": 26
+  },
+  "vr_chbre_tom": {
+    "address": 27
+  },
+  "sp_chbre_tom": {
+    "address": 1,
+    "transition": true
+  },
+  "su_chbre_tom": {
+    "address": 2,
+    "transition": true
+  },
+  "sp_sdb_enft_baignoire_et_wc": {
+    "address": 3,
+    "transition": true
+  },
+  "sp_sdb_enft_lavabo": {
+    "address": 4,
+    "transition": true
+  },
+  "sp_salon_fenetre": {
+    "address": 5,
+    "transition": true
+  },
+  "su_salon": {
+    "address": 6,
+    "transition": true
+  },
+  "sp_salon_bureau": {
+    "address": 7,
+    "transition": true
+  },
+  "sp_salon_canape_cheminee": {
+    "address": 8,
+    "transition": true
+  },
+  "sp_chbre_rose": {
+    "address": 9,
+    "transition": true
+  },
+  "su_chbre_rose": {
+    "address": 10,
+    "transition": true
+  },
+  "sp_chbre_prt_bureau": {
+    "address": 11,
+    "transition": true
+  },
+  "sp_chbre_prt_sdb": {
+    "address": 12,
+    "transition": true
+  },
+  "sp_chbre_prt_penderie": {
+    "address": 13,
+    "transition": true
+  },
+  "su_chbre_prt": {
+    "address": 14,
+    "max": 50,
+    "transition": true
+  },
+  "rubled_chbre_prt_douche": {
+    "address": 15,
+    "transition": true
+  },
+  "sp_chbre_leo": {
+    "address": 16,
+    "transition": true
+  },
+  "": {
+    "address": 17,
+    "transition": true
+  },
+  "sp_hall": {
+    "address": 18,
+    "max": 70,
+    "transition": true
+  },
+  "sp_cuisine_plan_de_travail": {
+    "address": 19,
+    "transition": true
+  },
+  "su_cuisine": {
+    "address": 20,
+    "transition": true
+  },
+  "sp_cuisine_meurtriere": {
+    "address": 21,
+    "transition": true
+  },
+  "su_etg_bureau": {
+    "address": 28
+  },
+  "su_etg_zone_2": {
+    "address": 29
+  },
+  "su_etg_zone_1": {
+    "address": 30
+  },
+  "su_sdb_etg": {
+    "address": 31
+  },
+  "relai_cellier_puissance_eclairage": {
+    "address": 32
+  },
+  "relai_cellier_telerupteur_1": {
+    "address": 33
+  },
+  "relai_cellier_telerupteur_2": {
+    "address": 34
+  },
+  "relai_cellier_telerupteur_3": {
+    "address": 35
+  },
+  "relai_cellier_telerupteur_4": {
+    "address": 36
+  },
+  "relai_cellier_exterieur": {
+    "address": 37
+  }
+}
