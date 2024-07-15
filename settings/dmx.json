@@ -1,136 +1,115 @@
 {
-  "vr_etg": {
-    "address": 22
+  "cover.etage_volet_roulant": {
+    "DMX_address": 22
   },
-  "vr_salon_porte_fenetre": {
-    "address": 23
+  "cover.salon_volet_roulant_porte_fenetre": {
+    "DMX_address": 23
   },
-  "vr_salon_fenetre": {
-    "address": 24
+  "cover.salon_volet_roulant_fenetre": {
+    "DMX_address": 24
   },
-  "vr_cuisine_baie_vitree": {
-    "address": 25
+  "cover.cuisine_volet_roulant_baie_vitree": {
+    "DMX_address": 25
   },
-  "vr_chbre_leo": {
-    "address": 26
+  "cover.chambre_leo_volet_roulant": {
+    "DMX_address": 26
   },
-  "vr_chbre_tom": {
-    "address": 27
+  "cover.chambre_tom_volet_roulant": {
+    "DMX_address": 27
   },
-  "sp_chbre_tom": {
-    "address": 1,
-    "transition": true
+  "light.chambre_tom_spots": {
+    "DMX_address": 1
   },
-  "su_chbre_tom": {
-    "address": 2,
-    "transition": true
+  "light.chambre_tom_suspension": {
+    "DMX_address": 2
   },
-  "sp_sdb_enft_baignoire_et_wc": {
-    "address": 3,
-    "transition": true
+  "light.salle_de_bain_enfants_spots_baignoire_et_wc": {
+    "DMX_address": 3
   },
-  "sp_sdb_enft_lavabo": {
-    "address": 4,
-    "transition": true
+  "light.salle_de_bain_enfants_spots_lavabo": {
+    "DMX_address": 4
   },
-  "sp_salon_fenetre": {
-    "address": 5,
-    "transition": true
+  "light.salon_spots_fenetre": {
+    "DMX_address": 5
   },
-  "su_salon": {
-    "address": 6,
-    "transition": true
+  "light.salon_suspension": {
+    "DMX_address": 6
   },
-  "sp_salon_bureau": {
-    "address": 7,
-    "transition": true
+  "light.salon_spots_bureau": {
+    "DMX_address": 7
   },
-  "sp_salon_canape_cheminee": {
-    "address": 8,
-    "transition": true
+  "light.salon_spots_canape_cheminee": {
+    "DMX_address": 8
   },
-  "sp_chbre_rose": {
-    "address": 9,
-    "transition": true
+  "light.chambre_rose_spots": {
+    "DMX_address": 9
   },
-  "su_chbre_rose": {
-    "address": 10,
-    "transition": true
+  "light.chambre_rose_suspension": {
+    "DMX_address": 10
   },
-  "sp_chbre_prt_bureau": {
-    "address": 11,
-    "transition": true
+  "light.chambre_parents_spots_bureau": {
+    "DMX_address": 11
   },
-  "sp_chbre_prt_sdb": {
-    "address": 12,
-    "transition": true
+  "light.chambre_parents_spots_sdb": {
+    "DMX_address": 12
   },
-  "sp_chbre_prt_penderie": {
-    "address": 13,
-    "transition": true
+  "light.chambre_parents_spots_penderie": {
+    "DMX_address": 13
   },
-  "su_chbre_prt": {
-    "address": 14,
-    "max": 50,
-    "transition": true
+  "light.chambre_parents_suspension": {
+    "DMX_address": 14,
+    "max": 50
   },
-  "rubled_chbre_prt_douche": {
-    "address": 15,
-    "transition": true
+  "light.chambre_parents_ruban_led_douche": {
+    "DMX_address": 15
   },
-  "sp_chbre_leo": {
-    "address": 16,
-    "transition": true
+  "light.chambre_leo_spots": {
+    "DMX_address": 16
   },
-  "": {
-    "address": 17,
-    "transition": true
+  "light.chambre_leo_suspension": {
+    "DMX_address": 17
   },
-  "sp_hall": {
-    "address": 18,
-    "max": 70,
-    "transition": true
+  "light.hall_spots": {
+    "DMX_address": 18,
+    "max": 70
   },
-  "sp_cuisine_plan_de_travail": {
-    "address": 19,
-    "transition": true
+  "light.cuisine_spots_plan_de_travail": {
+    "DMX_address": 19
   },
-  "su_cuisine": {
-    "address": 20,
-    "transition": true
+  "light.cuisine_suspension": {
+    "DMX_address": 20
   },
-  "sp_cuisine_meurtriere": {
-    "address": 21,
-    "transition": true
+  "light.cuisine_spots_meurtriere": {
+    "DMX_address": 21
   },
-  "su_etg_bureau": {
-    "address": 28
+  "switch.etage_suspension_bureau": {
+    "DMX_address": 28
   },
-  "su_etg_zone_2": {
-    "address": 29
+  "switch.etage_suspension_zone_2": {
+    "DMX_address": 29
   },
-  "su_etg_zone_1": {
-    "address": 30
+  "switch.etage_suspension_zone_1": {
+    "DMX_address": 30
   },
-  "su_sdb_etg": {
-    "address": 31
+  "switch.salle_de_bain_etage_suspension": {
+    "DMX_address": 31
   },
-  "relai_cellier_puissance_eclairage": {
-    "address": 32
+  "switch.cellier_relais_puissance_eclairage": {
+    "DMX_address": 32
   },
-  "relai_cellier_telerupteur_1": {
-    "address": 33
+  "switch.cellier_relais_telerupteur_1": {
+    "DMX_address": 33
   },
-  "relai_cellier_telerupteur_2": {
-    "address": 34
+  "switch.cellier_relais_telerupteur_2": {
+    "DMX_address": 34
   },
-  "relai_cellier_telerupteur_3": {
-    "address": 35
+  "switch.cellier_relais_telerupteur_3": {
+    "DMX_address": 35
   },
-  "relai_cellier_telerupteur_4": {
-    "address": 36
+  "switch.cellier_relais_telerupteur_4": {
+    "DMX_address": 36
   },
-  "relai_cellier_exterieur": {
-    "address": 37
+  "switch.cellier_relais_exterieur": {
+    "DMX_address": 37
   }
 }
