@@ -1,12 +1,12 @@
-import { settings } from "../core/settings"
-import WebSocket from "ws"
+import {homeAssistantAddress, token} from "../../settings/settings"
+import WebSocket                     from "ws"
 
 enum type {
   event  = "event",
   result = "result"
 }
 
-export enum wsType {
+enum wsType {
   auth            = "auth",
   callService     = "call_service",
   getStates       = 'get_states',
@@ -16,8 +16,8 @@ export enum wsType {
 let ws: WebSocket;
 let lastId = 0;
 
-export async function initSocket(resultCB: (data: HaResultData[]) => void, eventCB: (data: HaEventNewState) => void) {
-  ws = new WebSocket("ws://" + settings.homeAssistantAddress + "/api/websocket");
+export function initSocket(resultCB: (data: HaResultData[]) => void, eventCB: (data: HaEventNewState) => void) {
+  ws = new WebSocket("ws://" + homeAssistantAddress + "/api/websocket");
   ws.on('open', function open() {
     console.log('Connected to Home Assistant WebSocket');
   });
@@ -28,18 +28,14 @@ export async function initSocket(resultCB: (data: HaResultData[]) => void, event
     console.log(parsedData);
     switch (parsedData.type) {
       case 'auth_ok':
-        // console.log('Authentication successful');
-        // sendMessage(wsType.getStates);
-        // sendMessage(wsType.subscribeEvents, {event_type: 'state_changed'});
-        // sendMessage(wsType.subscribeEvents, {event_type: 'call_service'});
-        // sendEntityMessage({ data: { value: 77 }, entity: 'sensor.chambre_tom_volet_roulant' });
+        sendMessage(wsType.getStates);
+        sendMessage(wsType.subscribeEvents, { event_type: 'state_changed' });
         break;
       case 'auth_invalid':
         console.error('Authentication failed');
         break;
       case 'auth_required':
-        // console.log('Authentication required');
-        ws.send(JSON.stringify({type: wsType.auth, access_token: settings.token})); //specific because no id for this message
+        ws.send(JSON.stringify({type: wsType.auth, access_token: token})); //specific because no id for this message
         break;
       case type.result:
         resultCB(parsedData.result as HaResultData[]);

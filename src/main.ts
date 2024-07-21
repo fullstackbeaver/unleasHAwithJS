@@ -1,8 +1,9 @@
 import { importEntities } from "./core/entities"
+import handleResult       from "./core/result"
+import handleEvent        from "./core/event"
+import { initMQTT }       from "./ports/mqtt";
+import { initSocket }     from "./ports/websocket"
 
-import { initSocket }      from "./ports/websocket"
-import handleResult        from "./core/result"
-import handleEvent         from "./core/event"
 // import { writeToDMX }                      from "./ports/dmxOutput"
 
 // addActionOnWebsocket(type.event,  dmxHandleEvent);
@@ -17,9 +18,9 @@ import handleEvent         from "./core/event"
 //   writeToDMX(`1c${toggle ? 255 : 0}w`);
 // }, 2000)
 
+
 (async () => {
-  await importEntities();
-  await initSocket(handleResult, handleEvent);
-
-
+  await importEntities(); //TODO rewrite this function by removing await and import js file directly
+  initMQTT();
+  initSocket(handleResult, handleEvent);
 })();

@@ -1,5 +1,5 @@
-import { setValue } from "./entities";
-import { settings } from "./settings";
+import { DMXsteps, DMXtransitionDurationInMs } from "../../settings/settings";
+import { setValue }                            from "./entities";
 
 type Transition = {
   [entityId: string]: {
@@ -10,19 +10,19 @@ type Transition = {
   }
 }
 
-const transition: Transition = {};
+const transition = {} as Transition;
+
 let intervals:NodeJS.Timeout | undefined;
 
-
-export function updateDmxWithTransition(entityId:string, dmxAddress: number, currentValue: number, newValue: number): void {
+export function updateDmxWithTransition(entityId:string, dmxAddress: number, currentValue = 0, newValue: number): void {
   if (transition[entityId]) currentValue = Math.round( transition[entityId].currentValue );
   transition[entityId] = {
     currentValue: currentValue,
     dmxAddress  : dmxAddress,
-    gap         : (newValue - currentValue) / (settings.DMXsteps),
-    step        : settings.DMXsteps
+    gap         : (newValue - currentValue) / (DMXsteps),
+    step        : DMXsteps
   }
-  if (!intervals) intervals = setInterval(updateDmxTransition, settings.DMXtransitionDurationInMs/1000);
+  if (!intervals) intervals = setInterval(updateDmxTransition, DMXtransitionDurationInMs/1000);
   // updateDMX(dmxAddress, newValue);
 }
 export function updateDmxWithoutTransition(entityId:string, dmxAddress: number, newValue: number): void {

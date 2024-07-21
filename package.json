@@ -1,6 +1,6 @@
 {
-  "name": "dmxha",
-  "version": "1.0.0",
+  "name": "unleas-ha-with-js",
+  "version": "0.1.0",
   "main": "src/main.ts",
   "type": "module",
   "scripts": {
@@ -10,8 +10,9 @@
   "keywords": [],
   "author": "FSB",
   "license": "ISC",
-  "description": "a gateway between home assistant and a DMX controller through a serial port (RS485)",
+  "description": "add functionnalities to home assistant with js",
   "dependencies": {
+    "mqtt": "^5.8.1",
     "serialport": "^12.0.0",
     "ws": "^8.17.1"
   },

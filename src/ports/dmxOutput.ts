@@ -1,9 +1,10 @@
-const { DMXrs485 }   = require("../../settings.json");
-const { SerialPort, ReadlineParser } = require('serialport');
+
+import { SerialPort, ReadlineParser } from 'serialport';
+import { DMXrs485 }                   from '../../settings/settings';
 
 const port = new SerialPort({
   autoOpen: true,
-  baudRate: 115200,
+  baudRate: 250000,
   path    : DMXrs485,
 }, function (err) {
   if (err) {
@@ -29,7 +30,7 @@ port.on('error', function(err) {
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }))
 parser.on('data', console.log)
 
-function writeToDMX(data) {
+export function writeToDMX(data:string) {
   console.log("writeToDMX", data); //TODO remove
   // const dmxBuffer = Buffer.alloc(data.length+1); // 1 octet de démarrage + octets de données
   // dmxBuffer[0]    = 0;                           // Octet de démarrage (marque de début)
@@ -38,8 +39,4 @@ function writeToDMX(data) {
   // });
   // port.write(dmxBuffer);
   port.write(Buffer.from(data));
-}
-
-module.exports = {
-  writeToDMX
 }

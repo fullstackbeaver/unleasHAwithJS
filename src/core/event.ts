@@ -1,23 +1,34 @@
+import { wsEntityList, getEntity }                             from "./entities";
 import { updateDmxWithoutTransition, updateDmxWithTransition } from "./dmx";
-import { entitiesList, getEntity } from "./entities";
 
-export default function handleEvent( newState:HaEventNewState): void {
-
-  if (entitiesList().includes(newState.entity_id)){
-    const {attributes, entity_id, state} = newState;
+/**
+ * This function handles events based on the provided HaEventNewState object.
+ *
+ * @param {HaEventNewState} attributes - The attributes of the event
+ *
+ * @return {void} This function does not return anything
+ */
+export default function handleEvent( { attributes, entity_id, state }:HaEventNewState): void {
+  if (wsEntityList.includes(entity_id)){
     const entity = getEntity(entity_id);
-    if (entity_id.startsWith("cover")) {
-    }
     if (entity_id.startsWith("light")) {
-
-      updateDmxWithTransition(entity_id, entity.DMX_address, entity.value, getValueNewValueLight(state, attributes.brightness,entity.max));
+      entity.dmxAddress && updateDmxWithTransition(entity_id, entity.dmxAddress, entity.value, getValueNewValueLight(state, attributes.brightness,entity.max));
     }
     if (entity_id.startsWith("switch")) {
-      updateDmxWithoutTransition(entity_id, entity.DMX_address, onOffToValue(state));
+      entity.dmxAddress && updateDmxWithoutTransition(entity_id, entity.dmxAddress, onOffToValue(state));
     }
   };
 }
 
+/**
+ * Calculates the new value of a light based on its state and brightness.
+ *
+ * @param {("on"|"off")}  state      - The state of the light.
+ * @param {(number|null)} brightness - The brightness of the light.
+ * @param {number}        [max]      - The maximum brightness value.
+ *
+ * @return {number} The new value of the light.
+ */
 function getValueNewValueLight(state:"on"|"off", brightness:number|null, max?:number): number {
   if (state === "off")     return 0;
   if (brightness === null) brightness = 255;
@@ -25,6 +36,13 @@ function getValueNewValueLight(state:"on"|"off", brightness:number|null, max?:nu
   return brightness;
 }
 
+/**
+ * Converts a boolean value to a numeric representation.
+ *
+ * @param {("on"|"off")} state - The state to convert.
+ *
+ * @return {number} The numeric representation of the state.
+ */
 function onOffToValue(state:"on"|"off"): number {
   return state === "off" ? 0 : 255;
 }
