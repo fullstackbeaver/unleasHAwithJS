@@ -1,5 +1,4 @@
-import { readdirSync, readFileSync } from "fs";
-import { join }                      from "path";
+import { readdirSync } from "fs";
 
 /**
  * Reads all files in the specified folder.

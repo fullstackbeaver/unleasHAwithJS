@@ -16,6 +16,7 @@ export const wsEntityList = entitiesListByProtocol("WS");
 
 
 export async function importEntities(){
+  // generate entities from settings
 }
 
 export function entitiesListByProtocol(protocol: string): string[] {

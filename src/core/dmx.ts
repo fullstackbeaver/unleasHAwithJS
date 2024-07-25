@@ -14,13 +14,14 @@ const transition = {} as Transition;
 
 let intervals:NodeJS.Timeout | undefined;
 
-export function updateDmxWithTransition(entityId:string, dmxAddress: number, currentValue = 0, newValue: number): void {
+export function updateDmxWithTransition(entityId:string, dmxAddress: number, currentValue: number|undefined, newValue: number): void {
+  currentValue = currentValue ?? 0;
   if (transition[entityId]) currentValue = Math.round( transition[entityId].currentValue );
   transition[entityId] = {
-    currentValue: currentValue,
-    dmxAddress  : dmxAddress,
-    gap         : (newValue - currentValue) / (DMXsteps),
-    step        : DMXsteps
+    currentValue,
+    dmxAddress,
+    gap : (newValue - currentValue) / (DMXsteps),
+    step: DMXsteps
   }
   if (!intervals) intervals = setInterval(updateDmxTransition, DMXtransitionDurationInMs/1000);
   // updateDMX(dmxAddress, newValue);
