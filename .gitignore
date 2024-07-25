@@ -1,3 +1,4 @@
 node_modules
-settings
+settings/*.ts
 dmxHa.js
+bun.lockb
