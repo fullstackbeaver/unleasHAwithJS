@@ -1,7 +1,7 @@
 import      { MQTTaddress, MQTTclientId, MQTTpassword, MQTTuser } from "../../settings/settings"
+import      { getEntity, getPropertyValueOfEntities }             from "../core/entities";
 import type { MqttClient }                                        from "mqtt";
 import      { connect }                                           from "mqtt";
-import      { getPropertyValueOfEntities }                        from "../core/entities";
 
 let client:MqttClient;
 
@@ -36,3 +36,8 @@ export function initMQTT() {
   })
 };
 
+export function sendMqtt(entityId:string, value:unknown) {
+  const {mqttTopics, mqqttRetains} = getEntity(entityId);
+  if (!mqttTopics) return; //TODO ajouter gestionnaire d'erreur
+  client.publish(mqttTopics[1], JSON.stringify(value), {retain:mqqttRetains});
+}

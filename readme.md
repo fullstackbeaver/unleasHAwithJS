@@ -46,7 +46,8 @@ bun dev
 ## Roadmap
 - [ ] having a functional proof of concept which interacting with home assistant through web socket and mqtt, implementing DMX protocol trhough RS485 port.
 - [x] migrate to [Bun](https://bun.sh/)
-- [ ] save last state of the desired terminals (by a database or simply by using the MQTT functionality)
+- [x] save last state of the desired terminals (by a database or simply by using the MQTT functionality)
+- [ ] add error handler
 - [ ] add test
 - [ ] add documentation
 - [ ] convert it in order to be a plugin for home assistant
