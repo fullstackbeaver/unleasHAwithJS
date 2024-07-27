@@ -1,23 +1,19 @@
 import { entities } from "../../settings/entities";
 
 type Entity = {
-  dmxActive   ?: number
-  dmxAddress  ?: number
-  dmxDirection?: number
-  max         ?: number
-  mqttTopics  ?: string[]
-  output       : string
-  protocol     : string
-  value       ?: number // Add the value property here
+  dmxActive     ?: number
+  dmxAddress    ?: number
+  dmxDirection  ?: number
+  max           ?: number
+  mqqttRetains  ?: boolean
+  mqttTopics    ?: string[]  //first entry is getter, second entry is setter
+  output         : string
+  protocol       : string
+  value         ?: number
 }
 
 const workingEntities     = entities as { [key: string]: Entity };
 export const wsEntityList = entitiesListByProtocol("WS");
-
-
-export async function importEntities(){
-  // generate entities from settings
-}
 
 export function entitiesListByProtocol(protocol: string): string[] {
   return Object
