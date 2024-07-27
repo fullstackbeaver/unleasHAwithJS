@@ -1,14 +1,16 @@
 import { entities } from "../../settings/entities";
 
-type Entity = {
+export type Entity = {
   dmxActive     ?: number
   dmxAddress    ?: number
   dmxDirection  ?: number
   max           ?: number
+  id            ?: string
   mqqttRetains  ?: boolean
   mqttTopics    ?: string[]  //first entry is getter, second entry is setter
   output         : string
   protocol       : string
+  state         ?: string
   value         ?: number
 }
 
@@ -38,4 +40,8 @@ export function setValue(entityId: string, value: number): void {
 
 export function getPropertyValueOfEntities(property: keyof Entity): unknown[] {
   return Object.values(workingEntities).map(entity => entity[property]);
+}
+
+export function getAllEntities() {
+  return workingEntities;
 }
