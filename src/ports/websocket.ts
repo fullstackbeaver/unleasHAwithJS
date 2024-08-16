@@ -25,7 +25,7 @@ export function initSocket(resultCB: (data: HaResultData[]) => void, eventCB: (d
   ws.on('message', function incoming(data) {
     const parsedData = JSON.parse(data.toString('utf8'));
     if (parsedData.id > lastId) lastId = parsedData.id;
-    console.log(parsedData);
+    // console.log(parsedData);
     switch (parsedData.type) {
       case 'auth_ok':
         sendMessage(wsType.getStates);
