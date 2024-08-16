@@ -17,7 +17,7 @@ cd unleasHAwithJS
 
 Install Dependencies:
 ```Bash
-bun install
+npm i
 ```
 
 Create settings.ts file in settings folder and add token.
@@ -40,12 +40,11 @@ This project is in alpha statement and unfinished yet.
 
 For start in dev mode use this command in your terminal:
 ```
-bun dev
+npm run dev
 ```
 
 ## Roadmap
 - [ ] having a functional proof of concept which interacting with home assistant through web socket and mqtt, implementing DMX protocol trhough RS485 port.
-- [x] migrate to [Bun](https://bun.sh/)
 - [x] save last state of the desired terminals (by a database or simply by using the MQTT functionality)
 - [ ] add error handler
 - [ ] add test

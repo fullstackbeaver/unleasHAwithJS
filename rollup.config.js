@@ -5,7 +5,7 @@ import typescript from '@rollup/plugin-typescript';
 export default {
   input: 'src/main.ts',
   output: {
-    file: '/bin/dmxHa.js',
+    file: './dmxHa.js',
     format: 'es'
   },
   plugins: [
