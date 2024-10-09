@@ -60,16 +60,16 @@ Contributions to this project are highly appreciated. Feel free to fork the repo
 
 ## Quality
 ### sonarcloud evaluation
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_DMXha)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_DMXha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fullstackbeaver_jsPowerForHA&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fullstackbeaver_jsPowerForHA)
 
 ### unit tests
 Unit tests are not implemented yet and will come in comming commits.
