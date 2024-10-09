@@ -1,5 +1,7 @@
-import {homeAssistantAddress, token} from "../../settings/settings"
-import WebSocket                     from "ws"
+/* eslint-disable camelcase, no-unused-vars */
+import type { HaEventNewState, HaResultData } from "@core/HaTypes";
+import      { homeAssistantAddress, token }   from "@settings/settings";
+import      WebSocket                         from "ws";
 
 enum type {
   event  = "event",
@@ -9,8 +11,8 @@ enum type {
 enum wsType {
   auth            = "auth",
   callService     = "call_service",
-  getStates       = 'get_states',
-  subscribeEvents = 'subscribe_events'
+  getStates       = "get_states",
+  subscribeEvents = "subscribe_events"
 }
 
 let ws: WebSocket;
@@ -18,24 +20,24 @@ let lastId = 0;
 
 export function initSocket(resultCB: (data: HaResultData[]) => void, eventCB: (data: HaEventNewState) => void) {
   ws = new WebSocket("ws://" + homeAssistantAddress + "/api/websocket");
-  ws.on('open', function open() {
-    console.log('Connected to Home Assistant WebSocket');
+  ws.on("open", function open() {
+    console.log("Connected to Home Assistant WebSocket");
   });
 
-  ws.on('message', function incoming(data) {
-    const parsedData = JSON.parse(data.toString('utf8'));
+  ws.on("message", function incoming(data) {
+    const parsedData = JSON.parse(data.toString("utf8"));
     if (parsedData.id > lastId) lastId = parsedData.id;
     // console.log(parsedData);
     switch (parsedData.type) {
-      case 'auth_ok':
+      case "auth_ok":
         sendMessage(wsType.getStates);
-        sendMessage(wsType.subscribeEvents, { event_type: 'state_changed' });
+        sendMessage(wsType.subscribeEvents, { event_type: "state_changed" });
         break;
-      case 'auth_invalid':
-        console.error('Authentication failed');
+      case "auth_invalid":
+        console.error("Authentication failed");
         break;
-      case 'auth_required':
-        ws.send(JSON.stringify({type: wsType.auth, access_token: token})); //specific because no id for this message
+      case "auth_required":
+        ws.send(JSON.stringify({ access_token: token, type: wsType.auth })); //specific because no id for this message
         break;
       case type.result:
         resultCB(parsedData.result as HaResultData[]);
@@ -47,13 +49,13 @@ export function initSocket(resultCB: (data: HaResultData[]) => void, eventCB: (d
   });
 
   // Gérer les erreurs de connexion
-  ws.on('error', function error(error) {
-    console.error('WebSocket error:', error);
+  ws.on("error", function error(error) {
+    console.error("WebSocket error:", error);
   });
 
   // Gérer la fermeture de la connexion"opening"
-  ws.on('close', function close() {
-    console.warn('Disconnected from Home Assistant WebSocket');
+  ws.on("close", function close() {
+    console.warn("Disconnected from Home Assistant WebSocket");
   });
 }
 
@@ -75,10 +77,10 @@ export function sendEntityMessage({ data, entity }: { data: DataType, entity: st
     domain,
     service     : defineService(),
     service_data: {
-        "entity_id": entity,
-        ...data
-      }
-    });
+      "entity_id": entity,
+      ...data
+    }
+  });
 }
 
 function sendMessage(type: wsType, data?: object) {
@@ -86,7 +88,7 @@ function sendMessage(type: wsType, data?: object) {
   const message = {
     id: lastId,
     type
-  }
+  };
   data && Object.assign(message, data);
   console.log("sendMessage", message, JSON.stringify(message));
   ws.send(JSON.stringify(message));

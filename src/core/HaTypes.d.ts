@@ -1,4 +1,4 @@
-type HaEventNewState = {
+export type HaEventNewState = {
   entity_id: string
   attributes: {
     brightness: number | null
@@ -6,7 +6,7 @@ type HaEventNewState = {
   state : "on"|"off"
 }
 
-type HaResultData = {
+export type HaResultData = {
   entity_id  : string
   attributes?: {
     brightness?: number

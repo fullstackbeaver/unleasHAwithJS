@@ -1,4 +1,4 @@
-import { wsEntityList, setValue } from "./entities";
+import { setValue, wsEntityList } from "./entities";
 
 export default function handleResult(data:HaResultData[]): void {
   if (Array.isArray(data)) {

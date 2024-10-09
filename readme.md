@@ -7,12 +7,12 @@ To set up this project, follow these steps:
 
 Clone the Repository:
 ```Bash
-git clone https://github.com/fullstackbeaver/unleasHAwithJS.git
+git clone https://github.com/fullstackbeaver/jsPowerForHA.git
 ```
 
 Navigate to the Project Directory:
 ```Bash
-cd unleasHAwithJS
+cd jsPowerForHA
 ```
 
 Install Dependencies:
@@ -44,7 +44,10 @@ npm run dev
 ```
 
 ## Roadmap
-- [ ] having a functional proof of concept which interacting with home assistant through web socket and mqtt, implementing DMX protocol trhough RS485 port.
+- [ ] move from DMX to artnet
+- [ ] remove serial communication
+- [ ] move to bun
+- [ ] having a functional proof of concept which interacting with home assistant through web socket and maybe mqtt.
 - [x] save last state of the desired terminals (by a database or simply by using the MQTT functionality)
 - [ ] add error handler
 - [ ] add test

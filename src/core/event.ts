@@ -1,5 +1,7 @@
-import { wsEntityList, getEntity }                             from "./entities";
-import { updateDmxWithoutTransition, updateDmxWithTransition } from "./dmx";
+/* eslint-disable camelcase */
+import      { getEntity, wsEntityList }                             from "./entities";
+import      { updateDmxWithTransition, updateDmxWithoutTransition } from "./dmx";
+import type { HaEventNewState }                                     from "./HaTypes";
 
 /**
  * This function handles events based on the provided HaEventNewState object.

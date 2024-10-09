@@ -1,7 +1,7 @@
 import { DMXsteps, DMXtransitionDurationInMs } from "../../settings/settings";
 import { getAllEntities, setValue }            from "./entities";
 import { openDMXconnection, writeToDMX }       from "../ports/dmxRs485Output";
-import { DMXrs485 }                            from '../../settings/settings';
+import { DMXrs485 }                            from "../../settings/settings";
 
 type Transition = {
   [entityId: string]: {
@@ -34,7 +34,7 @@ export function updateDmxWithTransition(entityId:string, dmxAddress: number, cur
     dmxAddress,
     gap : (newValue - currentValue) / (DMXsteps),
     step: DMXsteps
-  }
+  };
   if (!intervals) intervals = setInterval(updateDmxTransition, DMXtransitionDurationInMs/1000);
 }
 

@@ -1,5 +1,5 @@
-import type {Entity} from "./entities";
-import {setEntity} from "./entities";
+import type { Entity }    from "./entities";
+// import      { setEntity } from "./entities";
 
 type IntervalCover = {
   currentPosition: number
@@ -10,7 +10,7 @@ type IntervalCover = {
 
 const mmoovingCovers = {} as { [key: string]: IntervalCover };
 
-export function handleCoverMqtt(topic:string, message:string, {id, value}:Entity){
+export function handleCoverMqtt(topic:string, message:string, { id, value }:Entity){
   if (!id) throw new Error("Cover id not defined"); //TODO change to error manager
   if (value === undefined) value = 0;
   switch (message) {
@@ -35,20 +35,24 @@ export function handleCoverMqtt(topic:string, message:string, {id, value}:Entity
 
 function closing(id: string, value: number) {
   if (mmoovingCovers[id]) stop(id);
+  console.log(value);
 }
 
 function opening(id: string, value: number) {
   if (mmoovingCovers[id]) stop(id);
+  console.log(value);
 }
 
-function stop(id: string) { 
+function stop(id: string) {
+  console.log(id);
 }
 
-function sendOverMqtt(topic: string, value: number) {
-}
+// function sendOverMqtt(topic: string, value: number) {
+//   console.log(topic, value);
+// }
 
-function loopCover() {
-}
+// function loopCover() {
+// }
 
-function calculatePosition() {
-}
+// function calculatePosition() {
+// }
