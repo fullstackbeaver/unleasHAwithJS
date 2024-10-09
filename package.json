@@ -10,13 +10,14 @@
     "lint": "eslint --fix",
     "start": "bun dev",
     "test": "bun test",
-    "watch": "bun --hot index.ts --clear --extensions ts,json"
+    "watch": "bun --hot src/main.ts --clear --extensions ts,json"
   },
   "keywords": [],
   "author": "FSB",
   "license": "ISC",
   "description": "add functionnalities to home assistant with js",
   "dependencies": {
+    "artnet": "^1.4.0",
     "ws": "^8.17.1"
   },
   "devDependencies": {
