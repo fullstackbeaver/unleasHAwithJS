@@ -2,8 +2,9 @@ import      { DMXsteps, DMXtransitionDurationInMs } from "@settings/settings";
 import type { HaLight,  SwitchState }               from "./HaTypes";
 import      { Device }                              from "./Device";
 import type { DeviceArguments }                     from "./Device";
+import      { getService }                          from "./entities";
 import      { sendUpdateMessage }                   from "@infra/websocket";
-import      { setDmx }                              from "@infra/artnet";
+import      { setDmx }                              from "@infra/artnet/artnet";
 
 interface LightArguments extends DeviceArguments {
   dmxAddress?: number
@@ -13,7 +14,6 @@ interface LightArguments extends DeviceArguments {
 export const LIGHT = "light";
 
 export class Light extends Device {
-  private context   : object | undefined;
   private dmxAddress: number | undefined;
   private gap = 0;
   private max: number | undefined;
@@ -35,15 +35,14 @@ export class Light extends Device {
    */
   public update(newData: HaLight, isEvent: boolean = false) {
     const brightness = this.getValueNewValue({
-      brightness: newData.attributes?.brightness,
+      brightness: newData.attributes.brightness,
       state     : newData.state
     });
-    if (isEvent){
-      this.context = newData.context;
-      this.updateValueWithTransition(brightness);
-    }
+    this.setContext(newData.context);
+    if (isEvent) this.updateValueWithTransition(brightness);
     else {
       this.setValue(brightness);
+      this.updateValue();
     }
   }
 
@@ -74,22 +73,9 @@ export class Light extends Device {
   private useTransition() {
     this.step++;
     this.incrementValue(this.gap);
-
-    if (this.step === DMXsteps) {
-      this.setValue(Math.round(this.value));
-      clearInterval(this.transtion);
-    }
-
-    this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
-    sendUpdateMessage({
-      context       : this.context,
-      domain        : LIGHT,
-      service       : (this.value && this.value > 0) ? "turn_on" : "turn_off",
-      "service_data": {
-        brightness : this.value,
-        "entity_id": LIGHT + "." + this.name
-      }
-    });
+    this.setValue(Math.round(this.value));
+    this.step === DMXsteps && clearInterval(this.transtion);
+    this.updateValue();
   };
 
   /**
@@ -107,5 +93,18 @@ export class Light extends Device {
     if (brightness === null) brightness = 255;
     if (this.max)            brightness = Math.round((this.max * brightness) / 255);
     return brightness;
+  }
+
+  private updateValue() {
+    this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
+    sendUpdateMessage({
+      context       : this.context,
+      domain        : LIGHT,
+      service       : "update_entity", // getService(this.value),
+      "service_data": {
+        brightness : this.value,
+        "entity_id": LIGHT + "." + this.name
+      }
+    });
   }
 }
