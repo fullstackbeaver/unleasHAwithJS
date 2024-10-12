@@ -1,8 +1,9 @@
-import      { Device }          from "./Device";
-import type { DeviceArguments } from "./Device";
-import type { HaNewState }      from "./HaTypes";
-// import      { sendUpdateMessage }                          from "@infra/websocket";
-// import      { setDmx }                                     from "@infra/artnet";
+import      { Device }               from "./Device";
+import type { DeviceArguments }      from "./Device";
+import type { HaNewStateFromSocket } from "./HaTypes";
+import      { getService }           from "./entities";
+import      { sendUpdateMessage }    from "@infra/websocket";
+import      { setDmx }               from "@infra/artnet/artnet";
 
 interface SwitchArguments extends DeviceArguments {
   dmxAddress?: number
@@ -18,16 +19,17 @@ export class Switch extends Device{
     if (dmxAddress) this.dmxAddress = dmxAddress;
   }
 
-  public update(newData: HaNewState, isEvent:boolean = false) {
-    !newData && console.log("newData is null", isEvent); //TODO remove
-    // this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
-    // sendUpdateMessage({
-    //   domain        : SWITCH,
-    //   service       : (this.value && this.value > 0) ? "turn_on" : "turn_off",
-    //   "service_data": {
-    //     //TODO add rigtht value
-    //     "entity_id": SWITCH + "." + this.name
-    //   }
-    // });
+  public update(newData: HaNewStateFromSocket, isEvent:boolean = false) { // eslint-disable-line no-unused-vars
+    const value = newData.state === "on" ? 255 : 0;
+    this.dmxAddress && setDmx(this.dmxAddress, value);
+
+    sendUpdateMessage({
+      context       : newData.context,
+      domain        : SWITCH,
+      service       : getService(value),
+      "service_data": {
+        "entity_id": SWITCH + "." + this.name
+      }
+    });
   }
 }
