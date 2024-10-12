@@ -1,47 +1,70 @@
-import { entities } from "../../settings/entities";
+import      { COVER, Cover }   from "./Cover";
+import      { LIGHT, Light }   from "./Light";
+import      { SWITCH, Switch } from "./Switch";
+import type { HaNewState }     from "./HaTypes";
+import      { entities }       from "@settings/entities";
 
-export type Entity = {
-  dmxActive     ?: number
-  dmxAddress    ?: number
-  dmxDirection  ?: number
-  max           ?: number
-  id            ?: string
-  mqqttRetains  ?: boolean
-  mqttTopics    ?: string[]  //first entry is getter, second entry is setter
-  output         : string
-  protocol       : string
-  state         ?: string
-  value         ?: number
+const entitiesList = {
+  [COVER] : {} as { [key: string]: Cover },
+  [LIGHT] : {} as { [key: string]: Light },
+  [SWITCH]: {} as { [key: string]: Switch }
+};
+const handledEntities = Object.keys(entities);
+
+for (const [key, value] of Object.entries(entities)) {
+  const { entityType, name } = extractEntity(key);
+  switch (entityType) {
+    case LIGHT:
+      entitiesList[LIGHT][name] = new Light({ name, ...value });
+      break;
+    case SWITCH:
+      entitiesList[SWITCH][name] = new Switch({ name, ...value });
+      break;
+    case COVER:
+      entitiesList[COVER][name] = new Cover({ name, ...value });
+      break;
+    default:
+      throw new Error(`Unknown entity type: ${entityType}`);
+  }
 }
 
-const workingEntities     = entities as { [key: string]: Entity };
-export const wsEntityList = entitiesListByProtocol("WS");
-
-export function entitiesListByProtocol(protocol: string): string[] {
-  return Object
-    .keys(entities)
-    .filter(key => entities[key as keyof typeof entities].protocol === protocol);
+/**
+ * Extracts the entity type and name from a full entity ID.
+ *
+ * @param  {string} id -The full entity ID.
+ *
+ * @return {Object} An object with two properties: entityType and name.
+ */
+function extractEntity(id: string){
+  const [entityType, name] = id.split(".");
+  return { entityType: entityType as keyof typeof entitiesList, name };
 }
 
-export function getEntity(entityId: string): Entity {
-  return workingEntities[entityId];
+/**
+ * Updates an entity with new state information from a Home Assistant event.
+ *
+ * @param  {HaNewState} event -The Home Assistant event containing the new state information.
+ *
+ * @return {void}
+ */
+export function updateEntityFromEvent(event: HaNewState) {
+  if ( !handledEntities.includes(event.entity_id) ) return;
+  const { entityType, name } = extractEntity(event.entity_id);
+  entitiesList[entityType][name].update(event,true);
 }
 
-export function setEntity(entityId: string, entity: Partial<Entity>): void {
-  workingEntities[entityId] = {
-    ...workingEntities[entityId],
-    ...entity
-  };
-}
-
-export function setValue(entityId: string, value: number): void {
-  workingEntities[entityId].value = value;
-}
-
-export function getPropertyValueOfEntities(property: keyof Entity): unknown[] {
-  return Object.values(workingEntities).map(entity => entity[property]);
-}
-
-export function getAllEntities() {
-  return workingEntities;
+/**
+ * Updates all entities with new state information from a Home Assistant result.
+ *
+ * @param  {HaResultData[]} result -The Home Assistant result containing the new state information.
+ *
+ * @return {void}
+ */
+export function updateEntityFromResult(result: HaNewState[]) {
+  for (const data of result) {
+    if (handledEntities.includes(data.entity_id)) {
+      const { entityType, name } = extractEntity(data.entity_id);
+      entitiesList[entityType][name].update(data);
+    };
+  }
 }

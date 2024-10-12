@@ -5,7 +5,7 @@
 // const data      = new Uint8Array(512);
 
 export function setDmx(dmxChanel:number, value:number) {
-  console.log(dmxChanel, value);
+  console.log("artnet set chanel", dmxChanel, "value", value);
   // data[dmxChanel] = value;
   // artnetDmx.send({
   //   callback: (status, message) => {
