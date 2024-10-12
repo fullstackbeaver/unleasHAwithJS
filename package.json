@@ -17,7 +17,8 @@
   "license": "ISC",
   "description": "add functionnalities to home assistant with js",
   "dependencies": {
-    "artnet-dmx": "^0.1.7",
+    "artnet": "^1.4.0",
+    "mqtt": "^5.10.1",
     "ws": "^8.17.1"
   },
   "devDependencies": {
