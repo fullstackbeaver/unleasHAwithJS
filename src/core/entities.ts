@@ -1,14 +1,15 @@
-import      { COVER, Cover }   from "./Cover";
-import      { LIGHT, Light }   from "./Light";
-import      { SWITCH, Switch } from "./Switch";
-import type { HaNewState }     from "./HaTypes";
-import      { entities }       from "@settings/entities";
+import      { COVER, Cover }         from "./Cover";
+import      { LIGHT, Light }         from "./Light";
+import      { SWITCH, Switch }       from "./Switch";
+import type { HaNewStateFromSocket } from "./HaTypes";
+import      { entities }             from "@settings/entities";
 
 const entitiesList = {
   [COVER] : {} as { [key: string]: Cover },
   [LIGHT] : {} as { [key: string]: Light },
   [SWITCH]: {} as { [key: string]: Switch }
 };
+
 const handledEntities = Object.keys(entities);
 
 for (const [key, value] of Object.entries(entities)) {
@@ -43,11 +44,11 @@ function extractEntity(id: string){
 /**
  * Updates an entity with new state information from a Home Assistant event.
  *
- * @param  {HaNewState} event -The Home Assistant event containing the new state information.
+ * @param  {HaNewStateFromSocket} event -The Home Assistant event containing the new state information.
  *
  * @return {void}
  */
-export function updateEntityFromEvent(event: HaNewState) {
+export function updateEntityFromEvent(event: HaNewStateFromSocket) {
   if ( !handledEntities.includes(event.entity_id) ) return;
   const { entityType, name } = extractEntity(event.entity_id);
   entitiesList[entityType][name].update(event,true);
@@ -60,11 +61,17 @@ export function updateEntityFromEvent(event: HaNewState) {
  *
  * @return {void}
  */
-export function updateEntityFromResult(result: HaNewState[]) {
+export function updateEntityFromResult(result: HaNewStateFromSocket[]) {
   for (const data of result) {
     if (handledEntities.includes(data.entity_id)) {
       const { entityType, name } = extractEntity(data.entity_id);
       entitiesList[entityType][name].update(data);
     };
   }
+}
+
+export function getService(value?: number) {
+  return (value && value > 0)
+    ? "turn_on"
+    : "turn_off";
 }

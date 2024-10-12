@@ -1,8 +1,8 @@
 import      { DMXsteps, DMXtransitionDurationInMs } from "@settings/settings";
-import type { HaLight,  SwitchState }               from "./HaTypes";
+import type { HaLightFromSocket,  SwitchState }     from "./HaTypes";
 import      { Device }                              from "./Device";
 import type { DeviceArguments }                     from "./Device";
-import      { getService }                          from "./entities";
+// import      { getService }                          from "./entities";
 import      { sendUpdateMessage }                   from "@infra/websocket";
 import      { setDmx }                              from "@infra/artnet/artnet";
 
@@ -29,11 +29,11 @@ export class Light extends Device {
   /**
    * Updates the light with new data from Home Assistant.
    * This method will call {updateValueWithTransition} with the new value.
-   * @param {HaLight} newData - The new data from Home Assistant.
+   * @param {HaLightFromSocket} newData - The new data from Home Assistant.
    *
    * @return {void}
    */
-  public update(newData: HaLight, isEvent: boolean = false) {
+  public update(newData: HaLightFromSocket, isEvent: boolean = false) {
     const brightness = this.getValueNewValue({
       brightness: newData.attributes.brightness,
       state     : newData.state

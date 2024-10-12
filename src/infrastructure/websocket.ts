@@ -1,7 +1,7 @@
 /* eslint-disable camelcase, no-unused-vars */
 import      { haToken, homeAssistantAddress }                 from "@settings/settings";
 import      { updateEntityFromEvent, updateEntityFromResult } from "@core/entities";
-import type { HaNewState }                                    from "@core/HaTypes";
+import type { HaNewStateFromSocket }                          from "@core/HaTypes";
 import      WebSocket                                         from "ws";
 import      { forceArray }                                    from "@adapters/state";
 
@@ -46,11 +46,11 @@ function handleUnsolicited(parsedData: any) {
       break;
     case WSMessageType.Event:
       console.log("event is", parsedData.id);
-      updateEntityFromEvent(parsedData.event.data.new_state as HaNewState);
+      updateEntityFromEvent(parsedData.event.data.new_state as HaNewStateFromSocket);
       break;
     case WSMessageType.Result:
       console.log("result id", parsedData.id);
-      parsedData.result && updateEntityFromResult(forceArray(parsedData.result) as HaNewState[]);
+      parsedData.result && updateEntityFromResult(forceArray(parsedData.result) as HaNewStateFromSocket[]);
       break;
     // Handle other cases as necessary
     default:

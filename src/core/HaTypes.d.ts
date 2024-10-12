@@ -1,6 +1,6 @@
-export type HaNewState = HaLight
+export type HaNewStateFromSocket = HaLightFromSocket
 
-export interface HaLight extends CommonData {
+export interface HaLightFromSocket extends CommonData {
   attributes: {
     brightness: number | null
   }
