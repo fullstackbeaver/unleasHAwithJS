@@ -1,3 +1,5 @@
+import type { HaNewStateFromSocket } from "./HaTypes";
+
 export type DeviceArguments = {
   name       : string
 }
@@ -34,4 +36,6 @@ export class Device {
   get value() {
     return this.protectedValue;
   }
+
+  updateFromSocket(newData: HaNewStateFromSocket) {} //eslint-disable-line no-unused-vars
 }

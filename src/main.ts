@@ -1,6 +1,3 @@
-// import      { initMQTT }        from "@infra/mqtt";
-import      { useWebSocket }      from "@infra/websocket";
+import { importEntities } from "@core/entities";
 
-console.log("running sevices",[
-  useWebSocket
-]);
+importEntities();

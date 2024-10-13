@@ -1,10 +1,9 @@
-import      { DMXsteps, DMXtransitionDurationInMs } from "@settings/settings";
-import type { HaLightFromSocket,  SwitchState }     from "./HaTypes";
-import      { Device }                              from "./Device";
-import type { DeviceArguments }                     from "./Device";
-// import      { getService }                          from "./entities";
-import      { sendUpdateMessage }                   from "@infra/websocket";
-import      { setDmx }                              from "@infra/artnet/artnet";
+import      { DMXsteps, DMXtransitionDurationInMs }     from "@settings/settings";
+import type { HaLightFromSocket,  SwitchState }         from "./HaTypes";
+import      { listenWebSocket, sendMessageToWebSocket } from "@infra/websocket";
+import      { Device }                                  from "./Device";
+import type { DeviceArguments }                         from "./Device";
+import      { setDmx }                                  from "@infra/artnet/artnet";
 
 interface LightArguments extends DeviceArguments {
   dmxAddress?: number
@@ -22,8 +21,9 @@ export class Light extends Device {
 
   constructor({ name, max, dmxAddress }: LightArguments) {
     super({ name });
-    if (max)        this.max = max;
+    if (max)        this.max        = max;
     if (dmxAddress) this.dmxAddress = dmxAddress;
+    listenWebSocket(LIGHT + "." + this.name, this.updateFromSocket.bind(this));
   }
 
   /**
@@ -33,17 +33,17 @@ export class Light extends Device {
    *
    * @return {void}
    */
-  public update(newData: HaLightFromSocket, isEvent: boolean = false) {
-    const brightness = this.getValueNewValue({
+  public updateFromSocket(newData: HaLightFromSocket, isEvent: boolean = false) {
+    this.setValue(this.getValueNewValue({
       brightness: newData.attributes.brightness,
       state     : newData.state
-    });
+    }));
     this.setContext(newData.context);
-    if (isEvent) this.updateValueWithTransition(brightness);
-    else {
-      this.setValue(brightness);
-      this.updateValue();
+    if (isEvent) {
+      this.updateValueWithTransition(this.value);
+      return {};
     }
+    return this.updateValueAndMakeMessage();
   }
 
   /**
@@ -75,7 +75,7 @@ export class Light extends Device {
     this.incrementValue(this.gap);
     this.setValue(Math.round(this.value));
     this.step === DMXsteps && clearInterval(this.transtion);
-    this.updateValue();
+    sendMessageToWebSocket(this.updateValueAndMakeMessage());
   };
 
   /**
@@ -95,9 +95,9 @@ export class Light extends Device {
     return brightness;
   }
 
-  private updateValue() {
+  private updateValueAndMakeMessage() {
     this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
-    sendUpdateMessage({
+    return {
       context       : this.context,
       domain        : LIGHT,
       service       : "update_entity", // getService(this.value),
@@ -105,6 +105,6 @@ export class Light extends Device {
         brightness : this.value,
         "entity_id": LIGHT + "." + this.name
       }
-    });
+    };
   }
 }
