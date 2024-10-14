@@ -14,9 +14,11 @@ export const SWITCH = "switch";
 export class Switch extends Device{
   private dmxAddress: number | undefined;
 
-  constructor({ dmxAddress, name }: SwitchArguments) {
+  constructor( name:string, args:object ) {
     super({ name });
-    this.dmxAddress = dmxAddress;
+
+    const { dmxAddress } = args as SwitchArguments;
+    this.dmxAddress      = dmxAddress;
     listenWebSocket(SWITCH + "." + this.name, this.updateFromSocket.bind(this));
   }
 

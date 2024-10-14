@@ -19,8 +19,10 @@ export class Light extends Device {
   private step = 0;
   private transtion: NodeJS.Timer | undefined;
 
-  constructor({ name, max, dmxAddress }: LightArguments) {
+  constructor( name:string, args:object) {
     super({ name });
+
+    const { dmxAddress, max }       = args as LightArguments;
     if (max)        this.max        = max;
     if (dmxAddress) this.dmxAddress = dmxAddress;
     listenWebSocket(LIGHT + "." + this.name, this.updateFromSocket.bind(this));

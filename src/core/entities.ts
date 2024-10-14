@@ -1,11 +1,12 @@
-// import { COVER, Cover }   from "./Cover";
+
+import { COVER, Cover }   from "./Cover";
 import { LIGHT, Light }   from "./Light";
 import { SWITCH, Switch } from "./Switch";;
 // import type { CoverArguments } from "./Cover";
 import { entities }       from "@settings/entities";
 
 const entitiesList = {
-  // [COVER] : {} as { [key: string]: Cover },
+  [COVER] : {} as { [key: string]: Cover },
   [LIGHT] : {} as { [key: string]: Light },
   [SWITCH]: {} as { [key: string]: Switch }
 };
@@ -17,14 +18,14 @@ export function importEntities() {
     const { entityType, name } = extractEntity(key);
     switch (entityType) {
       case LIGHT:
-        entitiesList[LIGHT][name] = new Light({ name, ...value });
+        entitiesList[LIGHT][name] = new Light( name, value );
         break;
       case SWITCH:
-        entitiesList[SWITCH][name] = new Switch({ name, ...value });
+        entitiesList[SWITCH][name] = new Switch( name, value );
         break;
-      // case COVER:
-        // entitiesList[COVER][name] = new Cover({ name, ...value });
-        // break;
+      case COVER:
+        entitiesList[COVER][name] = new Cover(name, value);
+        break;
       default:
         // throw new Error(`Unknown entity type: ${entityType}`);
     }
