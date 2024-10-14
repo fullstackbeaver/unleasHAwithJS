@@ -12,3 +12,11 @@ export function onOffToValue(state:"on"|"off"): number {
 export function forceArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
+
+export function convertToPercent(value: number): number {
+  return Math.round(value * 100 / 255);
+}
+
+export function convertFromPercent(value: number): number {
+  return Math.round(value * 255 / 100);
+}

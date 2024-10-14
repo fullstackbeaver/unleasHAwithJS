@@ -1,36 +1,8 @@
-import      { Device }          from "./Device";
-import type { DeviceArguments } from "./Device";
-import type { HaNewState }      from "./HaTypes";
-// import      { sendUpdateMessage }                          from "@infra/websocket";
-// import      { setDmx }                                     from "@infra/artnet";
-
-interface CoverArguments extends DeviceArguments {
-}
-
-export const COVER = "cover";
-
-export class Cover extends Device{
-
-  constructor({ name }: CoverArguments) {
-    super({ name });
-  }
-
-  public update(newData: HaNewState, isEvent:boolean = false) {
-    !newData && console.log("newData is null", isEvent  ); //TODO remove
-    // this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
-    // sendUpdateMessage({
-    //   domain        : SWITCH,
-    //   service       : (this.value && this.value > 0) ? "turn_on" : "turn_off",
-    //   "service_data": {
-    //     //TODO add rigtht value
-    //     "entity_id": SWITCH + "." + this.name
-    //   }
-    // });
-  }
-}
-
-// import type { Entity }    from "./entities";
-// // import      { setEntity } from "./entities";
+import      { convertFromPercent, convertToPercent } from "@adapters/state";
+import      { publish, subscribe }                   from "@infra/mqtt";
+import      { Device }                               from "./Device";
+import type { DeviceArguments }                      from "./Device";
+import      { setDmx }                               from "@infra/artnet/artnet";
 
 // type IntervalCover = {
 //   currentPosition: number
@@ -39,51 +11,220 @@ export class Cover extends Device{
 //   startTime      : number
 // }
 
-// const mmoovingCovers = {} as { [key: string]: IntervalCover };
+interface CoverArguments extends DeviceArguments {
+  dmxActive     : number
+  dmxDirection  : number
+  movingDuration: number
+}
 
-// export function handleCoverMqtt(topic:string, message:string, { id, value }:Entity){
-//   if (!id) throw new Error("Cover id not defined"); //TODO change to error manager
-//   if (value === undefined) value = 0;
-//   switch (message) {
-//     case "close":
-//       if (value === 0) return;
-//       opening(id, 0);
-//       break;
-//     case "open":
-//       if (value === 100) return;
-//       closing(id, 100);
-//       break;
-//     case "stop":
-//       mmoovingCovers[id] && stop(id);
-//       break;
-//     default: //number
-//       const position = parseInt(message);
-//       if (position === value) return;
-//       value > position ? opening(id, position) : closing(id, position);
-//       break;
-//   }
-// }
+export const COVER = "cover";
+const loopSpeed    = 1000;      //duration in ms
 
-// function closing(id: string, value: number) {
-//   if (mmoovingCovers[id]) stop(id);
-//   console.log(value);
-// }
+export class Cover extends Device{
+  private baseTopic      : string;
+  private dmxActive      : number;
+  private dmxDirection   : number;
+  private isMoving      ?: NodeJS.Timer;
+  private movingDuration : number;        // duration in ms
+  private stateCode      : number;        // 0: stopped 1: closing, 1: opening
+  private transition = {
+    startMoment: 0,
+    startValue : 0,
+    target     : 0
+  };
 
-// function opening(id: string, value: number) {
-//   if (mmoovingCovers[id]) stop(id);
-//   console.log(value);
-// }
+  constructor( name: string, args:object ) {
+    super({ name });
 
-// function stop(id: string) {
-//   console.log(id);
-// }
+    const { dmxActive, dmxDirection, movingDuration } = args as CoverArguments;
+    this.baseTopic      = "homeassistant/"+COVER+"/"+this.name;
+    this.dmxActive      = dmxActive;
+    this.dmxDirection   = dmxDirection;
+    this.movingDuration = movingDuration;
+    this.stateCode      = 0;
 
-// // function sendOverMqtt(topic: string, value: number) {
-// //   console.log(topic, value);
-// // }
+    subscribe(this.baseTopic+"/command",      (message:string) => {this.command(message);});
+    subscribe(this.baseTopic+"/set-position", (message:number) => {this.command(message);});
+  }
 
-// // function loopCover() {
-// // }
+  private calculatePosition() {
+    return ((255/ this.movingDuration) * (Date.now() - this.transition.startMoment)) + this.transition.startValue;
+  }
 
-// // function calculatePosition() {
-// // }
+  /**
+   * Start closing the cover.
+   * If the cover is already moving, it will be stopped first.
+   * Then the DMX values will be set to make the cover start closing.
+   * The cover will be reported as "closing" to Home Assistant.
+   *
+   * @param {number} [value] - The value to set the cover to.
+   *
+   * @return {void}
+   */
+  private closing(value?:number) {
+    console.log(this.name, "closing");
+    this.isMoving && this.stop();
+    this.sendToDMX(true, false);
+    this.startMoving(value || 255);
+    this.sendState(1);
+  }
+
+  /**
+   * Execute a command on the cover.
+   * Will stop any current movement, and then execute the command.
+   *
+   * @param {string|number} msg - The command to execute.
+   * If a string, it will be either "close", "open", or "stop".
+   * If a number, it is the position to set the cover to.
+   *
+   * @return {void}
+   */
+  public command(msg: string|number) {
+    switch (msg) {
+      case "close":
+        this.value < 255 && this.closing(255);
+        break;
+      case "open":
+        this.value > 0 && this.opening(0);
+        break;
+      case "stop":
+        this.isMoving && this.stop();
+        break;
+      default: //number
+        console.log("command should be a number and is a", typeof(msg));
+        const position = convertFromPercent(msg as number);
+        if (position === this.value) return;
+        this.value > position
+          ? this.opening(position)
+          : this.closing(position);
+        break;
+    }
+  }
+
+  /**
+   * Moves the cover to its moving target.
+   * If the cover is already at the target, it will be stopped.
+   * If the cover is too far, it will be stopped.
+   * Otherwise, it will set the cover to its new position and send the new state to Home Assistant.
+   *
+   * @return {void}
+   */
+  private loopMoving() {
+    const position = this.calculatePosition();
+
+    // has acheived
+    if (this.value === position) return this.stop();
+
+    this.setValue(position);
+
+    // is too far
+    if ((this.stateCode === 1 && position > this.transition.target) || (this.stateCode === 2 && position < this.transition.target)) {
+      return this.stop();
+    }
+
+    this.sendPosition();
+  }
+
+  /**
+   * Start opening the cover.
+   * If the cover is already moving, it will be stopped first.
+   * Then the DMX values will be set to make the cover start opening.
+   * The cover will be reported as "opening" to Home Assistant.
+   *
+   * @param {number} [value] - The value to set the cover to.
+   *
+   * @return {void}
+   */
+  private opening(value?:number) {
+    console.log(this.name, "opening");
+    this.isMoving && this.stop();
+    this.sendToDMX(true, true);
+    this.startMoving(value || 0);
+    this.sendState(2);
+  }
+
+  /**
+   * Publishes the current cover position to Home Assistant over MQTT.
+   * The position is converted to a percentage and published to the state topic.
+   *
+   * @return {void}
+   */
+  private sendPosition() {
+    publish(this.baseTopic, convertToPercent(this.value));
+  }
+
+  /**
+   * Stop the cover.
+   * If the cover is currently moving, it will be stopped immediately.
+   * The cover will be reported as "stopped" to Home Assistant.
+   *
+   * @return {void}
+   */
+  private stop() {
+    console.log(this.name, "stop");
+    clearInterval(this.isMoving);
+    this.isMoving = undefined;
+    this.sendToDMX(false, false);
+    this.sendPosition();
+    this.sendState(2);
+  }
+
+  /**
+   * Publishes the current state of the cover to Home Assistant over MQTT.
+   * The state is determined by the stateCode:
+   * - 1: The cover is closing (or closed if the value is 0)
+   * - 2: The cover is opening (or open if the value is 255)
+   * - otherwise: The cover is stopped
+   *
+   * @param {number} stateCode - The code of the state to send.
+   *
+   * @return {void}
+   */
+  private sendState(stateCode:number) {
+    this.stateCode = stateCode;
+    let state:string;
+    switch (stateCode) {
+      case 1:
+        state = this.value === 0
+          ? "closed"
+          : "closing";
+        break;
+      case 2:
+        state = this.value === 255
+          ? "open"
+          : "opening";
+        break;
+      default:
+        state = "stopped";
+        break;
+    }
+    publish(this.baseTopic+"/state", state);
+  }
+
+  /**
+   * Sets the DMX channels for the cover's activity and direction.
+   * @param {boolean} isActive  - Whether the cover is active.
+   * @param {boolean} isOpening - Whether the cover is opening.
+   *
+   * @return {void}
+   */
+  private sendToDMX(isActive:boolean, isOpening:boolean) {
+    setDmx(this.dmxActive, isActive ? 255 : 0);
+    setDmx(this.dmxDirection, isOpening ? 255 : 0);
+  }
+
+  /**
+   * Starts moving the cover towards the target position.
+   * @param {number} target - The target position to move towards.
+   *
+   * @return {void}
+   */
+  private startMoving( target:number ) {
+    this.transition = {
+      startMoment: Date.now(),
+      startValue : this.value,
+      target
+    };
+    this.isMoving = setInterval(this.loopMoving.bind(this), loopSpeed);
+  }
+}
