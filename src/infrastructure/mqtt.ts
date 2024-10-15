@@ -40,7 +40,7 @@ client.on("connect", () => {
 });
 
 client.on("message", (topic, message) => {
-  topics[topic] && topics[topic](message.toString("utf8"));
+  topics[topic] && topics[topic](message.toString("utf8"));  //NOSONAR this structure is for faster handling for JS engine
 });
 
 client.on("error", (error) => {

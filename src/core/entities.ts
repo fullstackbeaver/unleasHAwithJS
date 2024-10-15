@@ -2,7 +2,6 @@
 import { COVER, Cover }   from "./Cover";
 import { LIGHT, Light }   from "./Light";
 import { SWITCH, Switch } from "./Switch";;
-// import type { CoverArguments } from "./Cover";
 import { entities }       from "@settings/entities";
 
 const entitiesList = {
@@ -10,8 +9,6 @@ const entitiesList = {
   [LIGHT] : {} as { [key: string]: Light },
   [SWITCH]: {} as { [key: string]: Switch }
 };
-
-// const handledEntities = Object.keys(entities);
 
 export function importEntities() {
   for (const [key, value] of Object.entries(entities)) {
@@ -27,7 +24,7 @@ export function importEntities() {
         entitiesList[COVER][name] = new Cover(name, value);
         break;
       default:
-        // throw new Error(`Unknown entity type: ${entityType}`);
+        throw new Error(`Unknown entity type: ${entityType}`);
     }
   }
 }
@@ -45,34 +42,13 @@ export function extractEntity(id: string){
 }
 
 /**
- * Updates an entity with new state information from a Home Assistant event.
+ * Returns the appropriate service name to call on Home Assistant for the given value.
+ * If the value is truthy and greater than 0, returns "turn_on", otherwise returns "turn_off".
  *
- * @param  {HaNewStateFromSocket} event -The Home Assistant event containing the new state information.
+ * @param {number} [value] - The value to check.
  *
- * @return {void}
+ * @return {string} The service name to call.
  */
-// export function updateEntityFromEvent(event: HaNewStateFromSocket) {
-//   if ( !handledEntities.includes(event.entity_id) ) return;
-//   const { entityType, name } = extractEntity(event.entity_id);
-//   entitiesList[entityType][name].update(event,true);
-// }
-
-/**
- * Updates all entities with new state information from a Home Assistant result.
- *
- * @param  {HaResultData[]} result -The Home Assistant result containing the new state information.
- *
- * @return {void}
- */
-// export function updateEntityFromResult(result: HaNewStateFromSocket[]) {
-//   for (const data of result) {
-//     if (handledEntities.includes(data.entity_id)) {
-//       const { entityType, name } = extractEntity(data.entity_id);
-//       entitiesList[entityType][name].update(data);
-//     };
-//   }
-// }
-
 export function getService(value?: number) { //TODO move to Device or socket
   return (value && value > 0)
     ? "turn_on"

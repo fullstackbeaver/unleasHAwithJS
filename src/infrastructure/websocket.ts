@@ -30,8 +30,7 @@ ws.on("open", function open() {
 
 ws.on("message", function incoming(data) {
   const parsedData = JSON.parse(data.toString("utf8"));
-  // console.log("Received message:", parsedData);
-  (parsedData.id && pendingRequests.has(parsedData.id))
+  (parsedData.id && pendingRequests.size > 0 && pendingRequests.has(parsedData.id))
     ? pendingRequests.delete(parsedData.id)
     : handleUnsolicited(parsedData);
 });
@@ -57,10 +56,11 @@ function handleUnsolicited(parsedData: any) { //TODO change any
         })
       );
       break;
-    case WSMessageType.EVENT:
+    case WSMessageType.EVENT:{
       const { entity_id, new_state } = parsedData.event.data;
       useMessage(entity_id, new_state);
       break;
+    }
     case WSMessageType.RESULT:
       if (parsedData.result) {
         for (const data of forceArray(parsedData.result) ){

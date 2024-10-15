@@ -15,15 +15,15 @@ const  loopSpeed                = 500;      //duration in ms
 const  overMovingForCalibration = 2000;     //duration in ms
 
 export class Cover extends Device{
-  private baseTopic      : string;
-  private dmxActive      : number;
-  private dmxDirection   : number;
-  private isMoving      ?: NodeJS.Timer;
-  private movingDuration : number;              // duration in ms
-  private stateCode       = 0;                  // 0: stopped 1: closing, 1: opening
-  private setPositionSlug = "/set-position";
-  private timeoutForCalibration?: NodeJS.Timer;
-  private transition = {
+  private readonly baseTopic      : string;
+  private readonly dmxActive      : number;
+  private readonly dmxDirection   : number;
+  private          isMoving      ?: NodeJS.Timer;
+  private readonly movingDuration : number;        // duration in ms
+  private          stateCode       = 0;                // 0: stopped 1: closing, 1: opening
+  private readonly setPositionSlug = "/set-position";
+  private          timeoutForCalibration?: NodeJS.Timer;
+  private          transition = {
     startMoment: 0,
     startValue : 0,
     target     : 0
@@ -67,7 +67,7 @@ export class Cover extends Device{
   private closing(value?:number) {
     this.isMoving && this.stop();
     this.sendToDMX(true, false);
-    this.startMoving(value || 255);
+    this.startMoving(value ?? 255);
     this.sendState(1);
   }
 
@@ -92,11 +92,11 @@ export class Cover extends Device{
       case "stop":
         this.isMoving && this.stop();
         break;
-      case "":
-        console.log(" !!!! CLEARED");
-        // cleared topic
-        break;
-      default: //number
+      // case "":
+      //   console.log(" !!!! CLEARED");
+      //   // cleared topic
+      //   break;
+      default: { //number
         // publish(this.baseTopic, ""); //clear topic
         const position = convertFromPercent(parseInt(msg));
         if (position === this.value) return;
@@ -104,6 +104,7 @@ export class Cover extends Device{
           ? this.closing(position)
           : this.opening(position);
         break;
+      }
     }
   }
 
@@ -148,7 +149,7 @@ export class Cover extends Device{
   private opening(value?:number) {
     this.isMoving && this.stop();
     this.sendToDMX(true, true);
-    this.startMoving(value || 0);
+    this.startMoving(value ?? 0);
     this.sendState(2);
   }
 
@@ -241,6 +242,14 @@ export class Cover extends Device{
     this.stateCode = 0;
   }
 
+  /**
+   * Stops the interval used to move the cover.
+   * If the cover was moving, it will be stopped immediately.
+   * The cover's value will be clamped to the range [0, 255].
+   * The cover's position will be sent to Home Assistant.
+   *
+   * @return {void}
+   */
   private stopInterval() {
     clearInterval(this.isMoving);
     this.isMoving = undefined;
@@ -249,6 +258,13 @@ export class Cover extends Device{
     this.sendPosition();
   }
 
+  /**
+   * Stops the timeout for calibration.
+   * If the cover is currently stopping, but it will be calibrated (i.e. the timeout is set), it will be stopped immediately.
+   * The timeout will be cleared and the cover will be reported as "stopped" to Home Assistant.
+   *
+   * @return {void}
+   */
   private stopTimeout() {
     clearTimeout(this.timeoutForCalibration);
     this.timeoutForCalibration = undefined;

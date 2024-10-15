@@ -12,7 +12,7 @@ interface SwitchArguments extends DeviceArguments {
 export const SWITCH = "switch";
 
 export class Switch extends Device{
-  private dmxAddress: number | undefined;
+  private readonly dmxAddress: number | undefined;
 
   constructor( name:string, args:object ) {
     super({ name });

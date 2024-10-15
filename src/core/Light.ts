@@ -13,11 +13,11 @@ interface LightArguments extends DeviceArguments {
 export const LIGHT = "light";
 
 export class Light extends Device {
-  private dmxAddress: number | undefined;
-  private gap = 0;
-  private max: number | undefined;
-  private step = 0;
-  private transtion: NodeJS.Timer | undefined;
+  private readonly dmxAddress: number | undefined;
+  private          gap = 0;
+  private readonly max: number | undefined;
+  private          step = 0;
+  private          transtion: NodeJS.Timer | undefined;
 
   constructor( name:string, args:object) {
     super({ name });
@@ -102,7 +102,7 @@ export class Light extends Device {
     return {
       context       : this.context,
       domain        : LIGHT,
-      service       : "update_entity", // getService(this.value),
+      service       : "update_entity",
       "service_data": {
         brightness : this.value,
         "entity_id": LIGHT + "." + this.name
