@@ -1,15 +1,8 @@
 import      { convertFromPercent, convertToPercent } from "@adapters/state";
-import      { publish, subscribe }                   from "@infra/mqtt";
+import      { publish, subscribe, unsubscribe }                   from "@infra/mqtt";
 import      { Device }                               from "./Device";
 import type { DeviceArguments }                      from "./Device";
 import      { setDmx }                               from "@infra/artnet/artnet";
-
-// type IntervalCover = {
-//   currentPosition: number
-//   interval       : NodeJS.Timeout
-//   startPosition  : number
-//   startTime      : number
-// }
 
 interface CoverArguments extends DeviceArguments {
   dmxActive     : number
@@ -17,16 +10,19 @@ interface CoverArguments extends DeviceArguments {
   movingDuration: number
 }
 
-export const COVER = "cover";
-const loopSpeed    = 1000;      //duration in ms
+export const COVER              = "cover";
+const  loopSpeed                = 500;      //duration in ms
+const  overMovingForCalibration = 2000;     //duration in ms
 
 export class Cover extends Device{
   private baseTopic      : string;
   private dmxActive      : number;
   private dmxDirection   : number;
   private isMoving      ?: NodeJS.Timer;
-  private movingDuration : number;        // duration in ms
-  private stateCode      : number;        // 0: stopped 1: closing, 1: opening
+  private movingDuration : number;              // duration in ms
+  private stateCode       = 0;                  // 0: stopped 1: closing, 1: opening
+  private setPositionSlug = "/set-position";
+  private timeoutForCalibration?: NodeJS.Timer;
   private transition = {
     startMoment: 0,
     startValue : 0,
@@ -43,12 +39,19 @@ export class Cover extends Device{
     this.movingDuration = movingDuration;
     this.stateCode      = 0;
 
-    subscribe(this.baseTopic+"/command",      (message:string) => {this.command(message);});
-    subscribe(this.baseTopic+"/set-position", (message:number) => {this.command(message);});
+    subscribe(this.baseTopic,                      (message:string) => {this.setInitialPosition(message);});
+    subscribe(this.baseTopic+"/command",           (message:string) => {this.command(message);});
+    subscribe(this.baseTopic+this.setPositionSlug, (message:string) => {this.command(message);});
   }
 
+  /**
+   * Calculate the current position of the cover during a transition.
+   *
+   * @return {number} The current position of the cover.
+   */
   private calculatePosition() {
-    return ((255/ this.movingDuration) * (Date.now() - this.transition.startMoment)) + this.transition.startValue;
+    const direction = this.stateCode === 2 ? -255 : 255;
+    return Math.round((direction/ this.movingDuration) * (Date.now() - this.transition.startMoment)) + this.transition.startValue;
   }
 
   /**
@@ -62,7 +65,6 @@ export class Cover extends Device{
    * @return {void}
    */
   private closing(value?:number) {
-    console.log(this.name, "closing");
     this.isMoving && this.stop();
     this.sendToDMX(true, false);
     this.startMoving(value || 255);
@@ -79,7 +81,7 @@ export class Cover extends Device{
    *
    * @return {void}
    */
-  public command(msg: string|number) {
+  public command(msg: string) {
     switch (msg) {
       case "close":
         this.value < 255 && this.closing(255);
@@ -90,13 +92,17 @@ export class Cover extends Device{
       case "stop":
         this.isMoving && this.stop();
         break;
+      case "":
+        console.log(" !!!! CLEARED");
+        // cleared topic
+        break;
       default: //number
-        console.log("command should be a number and is a", typeof(msg));
-        const position = convertFromPercent(msg as number);
+        // publish(this.baseTopic, ""); //clear topic
+        const position = convertFromPercent(parseInt(msg));
         if (position === this.value) return;
-        this.value > position
-          ? this.opening(position)
-          : this.closing(position);
+        position > this.value
+          ? this.closing(position)
+          : this.opening(position);
         break;
     }
   }
@@ -118,8 +124,12 @@ export class Cover extends Device{
     this.setValue(position);
 
     // is too far
-    if ((this.stateCode === 1 && position > this.transition.target) || (this.stateCode === 2 && position < this.transition.target)) {
-      return this.stop();
+    if ((this.stateCode === 1 && position >= this.transition.target) || (this.stateCode === 2 && position <= this.transition.target)) {
+      if (this.transition.target === 0 || this.transition.target === 255) {
+        this.stopInterval();
+        this.timeoutForCalibration = setTimeout(this.stop.bind(this), overMovingForCalibration);
+      }
+      else this.stop();
     }
 
     this.sendPosition();
@@ -136,7 +146,6 @@ export class Cover extends Device{
    * @return {void}
    */
   private opening(value?:number) {
-    console.log(this.name, "opening");
     this.isMoving && this.stop();
     this.sendToDMX(true, true);
     this.startMoving(value || 0);
@@ -150,23 +159,12 @@ export class Cover extends Device{
    * @return {void}
    */
   private sendPosition() {
-    publish(this.baseTopic, convertToPercent(this.value));
+    publish(this.baseTopic, convertToPercent(this.value), true);
   }
 
-  /**
-   * Stop the cover.
-   * If the cover is currently moving, it will be stopped immediately.
-   * The cover will be reported as "stopped" to Home Assistant.
-   *
-   * @return {void}
-   */
-  private stop() {
-    console.log(this.name, "stop");
-    clearInterval(this.isMoving);
-    this.isMoving = undefined;
-    this.sendToDMX(false, false);
-    this.sendPosition();
-    this.sendState(2);
+  private setInitialPosition(value:string) {
+    this.setValue(parseInt(value));
+    unsubscribe(this.baseTopic);
   }
 
   /**
@@ -185,12 +183,12 @@ export class Cover extends Device{
     let state:string;
     switch (stateCode) {
       case 1:
-        state = this.value === 0
+        state = this.value === 255
           ? "closed"
           : "closing";
         break;
       case 2:
-        state = this.value === 255
+        state = this.value === 0
           ? "open"
           : "opening";
         break;
@@ -226,5 +224,33 @@ export class Cover extends Device{
       target
     };
     this.isMoving = setInterval(this.loopMoving.bind(this), loopSpeed);
+  }
+
+  /**
+   * Stop the cover.
+   * If the cover is currently moving, it will be stopped immediately.
+   * The cover will be reported as "stopped" to Home Assistant.
+   *
+   * @return {void}
+   */
+  private stop() {
+    this.isMoving && this.stopInterval();
+    this.timeoutForCalibration && this.stopTimeout();
+    this.sendToDMX(false, false);
+    this.sendState(this.stateCode);
+    this.stateCode = 0;
+  }
+
+  private stopInterval() {
+    clearInterval(this.isMoving);
+    this.isMoving = undefined;
+    this.value < 0 && this.setValue(0);
+    this.value > 255 && this.setValue(255);
+    this.sendPosition();
+  }
+
+  private stopTimeout() {
+    clearTimeout(this.timeoutForCalibration);
+    this.timeoutForCalibration = undefined;
   }
 }

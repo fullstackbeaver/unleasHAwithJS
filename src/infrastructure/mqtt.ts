@@ -4,11 +4,18 @@ import { connect }                                           from "mqtt";
 const topics = {} as {[topic:string]:Function};
 
 export function subscribe(topic:string, cb:Function) {
+  console.log("Subscribing to topic", topic);
   topics[topic] = cb;
   client.subscribe(topic);
 }
 
+export function unsubscribe(topic:string) {
+  console.log("Unsubscribing to topic", topic);
+  client.unsubscribe(topic);
+}
+
 export function publish(topic:string, value:unknown, retain:boolean = false) {
+  console.log("Publishing to topic", topic, value);
   client.publish(topic, JSON.stringify(value), { retain });
 }
 
@@ -33,7 +40,7 @@ client.on("connect", () => {
 });
 
 client.on("message", (topic, message) => {
-  topics[topic] && topics[topic](message);
+  topics[topic] && topics[topic](message.toString("utf8"));
 });
 
 client.on("error", (error) => {
