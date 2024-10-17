@@ -1,9 +1,4 @@
 import { ArtNetHost } from "@settings/settings";
-// import artnet from "artnet";
-
-// const artnetClient = artnet({
-//   host: ArtNetHost
-// });
 
 const artnetClient = require("artnet")({
   host: ArtNetHost

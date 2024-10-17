@@ -19,8 +19,9 @@ export class Cover extends Device{
   private readonly dmxActive      : number;
   private readonly dmxDirection   : number;
   private          isMoving      ?: NodeJS.Timer;
-  private readonly movingDuration : number;        // duration in ms
+  private readonly movingDuration : number;            // duration in ms
   private          stateCode       = 0;                // 0: stopped 1: closing, 1: opening
+  private readonly stateStrings    = ["stopped", "closing", "opening", "closed", "open"];
   private readonly setPositionSlug = "/set-position";
   private          timeoutForCalibration?: NodeJS.Timer;
   private          transition = {
@@ -169,35 +170,24 @@ export class Cover extends Device{
   }
 
   /**
-   * Publishes the current state of the cover to Home Assistant over MQTT.
-   * The state is determined by the stateCode:
-   * - 1: The cover is closing (or closed if the value is 0)
-   * - 2: The cover is opening (or open if the value is 255)
-   * - otherwise: The cover is stopped
+   * Publishes the current cover state to Home Assistant over MQTT.
+   * The state is determined by the {stateCode} parameter.
+   * If the state is "closing" or "opening", and the cover is at the end of its range
+   * (i.e. the value is 0 or 255), the state is converted to "closed" or "open".
+   * The state is published to the state topic.
    *
-   * @param {number} stateCode - The code of the state to send.
+   * @param {number} stateCode - The state of the cover, one of:
+   *   0: stopped
+   *   1: closing
+   *   2: opening
    *
    * @return {void}
    */
   private sendState(stateCode:number) {
-    this.stateCode = stateCode;
-    let state:string;
-    switch (stateCode) {
-      case 1:
-        state = this.value === 255
-          ? "closed"
-          : "closing";
-        break;
-      case 2:
-        state = this.value === 0
-          ? "open"
-          : "opening";
-        break;
-      default:
-        state = "stopped";
-        break;
+    if ((stateCode === 1 && this.value === 255) || (stateCode === 2 && this.value === 0)) {
+      stateCode += 2;
     }
-    publish(this.baseTopic+"/state", state);
+    publish(this.baseTopic+"/state", this.stateStrings[stateCode], true);
   }
 
   /**
