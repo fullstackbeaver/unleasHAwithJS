@@ -62,8 +62,8 @@ It can:
 - Handle lights, switches, and covers
 - Control devices connected to a DMX output through the ArtNet protocol
 
-Light are dimmed softly with transition.
-Cover give position to home assistant when there are moving.
+Lights are dimmed softly with transition.
+Covers give position to home assistant when there are moving.
 
 ## Customize to Your Needs
 
