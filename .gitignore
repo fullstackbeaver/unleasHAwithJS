@@ -2,3 +2,4 @@ node_modules
 settings/*.ts
 dmxHa.js
 bun.lockb
+coverage/

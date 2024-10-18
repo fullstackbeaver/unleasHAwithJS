@@ -1,5 +1,5 @@
-import      { convertFromPercent, convertToPercent } from "@adapters/state";
-import      { publish, subscribe, unsubscribe }      from "@infra/mqtt";
+import      { convertFromPercent, convertToPercent } from "src/utils/stateAdapter";
+import      { publish, subscribe, unsubscribe }      from "@infra/mqtt/mqtt";
 import      { Device }                               from "./Device";
 import type { DeviceArguments }                      from "./Device";
 import      { setDmx }                               from "@infra/artnet/artnet";

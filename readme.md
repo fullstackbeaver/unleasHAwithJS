@@ -76,7 +76,7 @@ The structure follows a hexagonal architecture: business rules are in the core (
 - [x] Functional proof of concept that interacts with Home Assistant through WebSocket (and potentially MQTT)
 - [ ] Upgrade covers: currently based on duration, but aiming for a smarter solution
 - [ ] Add error handling
-- [ ] Add tests
+- [ ] Add tests (work in progress)
 - [ ] Add documentation
 - [ ] Implement auto-dimming lights based on sensor luminosity levels
 - [ ] Add a "mode" or "scenario" feature

@@ -2,7 +2,7 @@
 import      { haToken, homeAssistantAddress } from "@settings/settings";
 // import type { HaNewStateFromSocket }          from "@core/HaTypes";
 import      WebSocket                         from "ws";
-import      { forceArray }                    from "@adapters/state";
+import      { forceArray }                    from "src/utils/stateAdapter";
 
 type Listener = {
   event:  (data: any) => void
