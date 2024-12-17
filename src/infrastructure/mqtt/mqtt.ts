@@ -1,8 +1,14 @@
-import      { MQTTaddress, MQTTclientId, MQTTpassword, MQTTuser } from "@settings/settings";
-import type { MqttConnectionOutput, MqttParameters }              from "./mqtt.d";
-import type { ErrorWithReasonCode }                               from "mqtt";
-import      { connect }                                           from "mqtt";
-import      { isTesting }                                         from "src/utils/test";
+import type { MqttConnectionOutput, MqttParameters } from "./mqtt.type";
+import type { ErrorWithReasonCode }                  from "mqtt";
+import      { connect }                              from "mqtt";
+import      { isTesting }                            from "src/utils/test";
+
+if (! process.env.MQTT_ADDRESS || !process.env.MQTT_CLIENTID || !process.env.MQTT_PASSWORD || !process.env.MQTT_USER) throw new Error("MQTT settings are not defined");
+
+const MQTTaddress  = process.env.MQTT_ADDRESS;
+const MQTTclientId = process.env.MQTT_CLIENTID;
+const MQTTpassword = process.env.MQTT_PASSWORD;
+const MQTTuser     = process.env.MQTT_USER;
 
 /**
  * Establishes a connection to the MQTT broker, and returns a function

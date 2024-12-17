@@ -32,6 +32,7 @@
       "@core/*": ["src/core/*"],
       "@infra/*": ["src/infrastructure/*"],
       "@settings/*": ["settings/*"],
+      "@utils/*": ["src/utils/*"],
     }
   }
 }

@@ -23,25 +23,7 @@ To set up this project, follow these steps:
    bun install
    ```
 
-4. Create a `settings.ts` file in the `settings` folder and add your token.
-   - If you're using a WebSocket connection, add the following lines:
-   ```typescript
-   export const token = "my long token";
-   export const homeAssistantAddress = "home_assistant_address:home_assistant_port";
-   ```
-   - If you're using an MQTT connection, add the following lines:
-   ```typescript
-   export const MQTTaddress = "mqtt://mqtt_address:mqtt_port";
-   export const MQTTclientId = "client_app_name";
-   export const MQTTpassword = "user_password";
-   export const MQTTuser = "user_name";
-   ```
-   - If you're using an ArtNet connection, add the following lines:
-   ```typescript
-   export const DMXtransitionDurationInMs = myDurationAsNumberInMs;
-   export const DMXsteps = numberOfStepsForTransition;
-   export const ArtNetHost = "ipOfArtNetControler";
-   ```
+4. Create a .env file based on .env sample file. Fill only needed value
 
 ## Usage
 

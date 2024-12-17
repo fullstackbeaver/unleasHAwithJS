@@ -1,0 +1,18 @@
+#folders paths
+CSV_FOLDER=/CSV
+YAML_FOLDER=/config
+
+#Home assistant configuration
+HA_TOKEN=
+HA_ADDRESS=
+
+#ArtNet settings
+ARTNET_HOST=
+DMX_TRANSITION_DURATION_IN_MS=750
+DMX_STEPS=10
+
+#MQTT settings
+MQTT_ADDRESS=
+MQTT_CLIENTID=
+MQTT_PASSWORD=
+MQTT_USER=

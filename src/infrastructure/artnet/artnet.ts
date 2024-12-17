@@ -1,12 +1,10 @@
-import { ArtNetHost } from "@settings/settings";
-
 const artnetClient = require("artnet")({
-  host: ArtNetHost
+  host: process.env.ARTNET_HOST
 });
 
 export function setDmx(dmxChanel: number, value: number) {
-  artnetClient.set(dmxChanel, value, function (err: any, res: any) {
-    console.log("artnet set",dmxChanel,value, err, res);
+  console.log(`Setting DMX chanel ${dmxChanel} to ${value}`);
+  artnetClient.set(dmxChanel, value, function (err: any) {
     if (err) {
       console.error(err);
       artnetClient.close();

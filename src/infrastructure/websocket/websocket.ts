@@ -1,28 +1,14 @@
 /* eslint-disable camelcase, no-unused-vars */
-import      { haToken, homeAssistantAddress } from "@settings/settings";
-// import type { HaNewStateFromSocket }          from "@core/HaTypes";
-import      WebSocket                         from "ws";
-import      { forceArray }                    from "src/utils/stateAdapter";
-
-type Listener = {
-  event:  (data: any) => void
-  result: (data: any) => void
-}
-
-export enum WSMessageType {
-  AUTH            = "auth",
-  CALLSERVICE     = "call_service",
-  GETSTATES       = "get_states",
-  SUBSCRIBEEVENTS = "subscribe_events",
-  EVENT           = "event",
-  RESULT          = "result"
-}
+import type { UpdateFromSocketArgs, WsReceivedMsg } from "./websocket.type.d";
+import      WebSocket                               from "ws";
+import      { WsMessageType }                       from "./websocket.constants";
+import      { forceArray }                          from "src/utils/stateAdapter";
 
 let lastSentId = 0; //id sent by this client
 
-const listeners       = {} as {[entity:string] : (data: any) => object};
+const listeners       = {} as {[entity:string] : (args:UpdateFromSocketArgs) => object};
 const pendingRequests = new Map<number, (data: any) => void>();
-const ws              = new WebSocket("ws://" + homeAssistantAddress + "/api/websocket");
+const ws              = new WebSocket("ws://" + process.env.HA_ADDRESS + "/api/websocket");
 
 ws.on("open", function open() {
   console.log("Connected to Home Assistant WebSocket");
@@ -35,15 +21,15 @@ ws.on("message", function incoming(data) {
     : handleUnsolicited(parsedData);
 });
 
-function handleUnsolicited(parsedData: any) { //TODO change any
+function handleUnsolicited(parsedData: WsReceivedMsg) {
   switch (parsedData.type) {
     case "auth_ok":
       sendMessageToWebSocket( {
-        type: WSMessageType.GETSTATES
+        type: WsMessageType.GETSTATES
       });
       sendMessageToWebSocket({
         event_type: "state_changed",
-        type      : WSMessageType.SUBSCRIBEEVENTS
+        type      : WsMessageType.SUBSCRIBEEVENTS
       });
       break;
     case "auth_invalid":
@@ -51,20 +37,20 @@ function handleUnsolicited(parsedData: any) { //TODO change any
     case "auth_required":
       ws.send(
         JSON.stringify({
-          access_token: haToken,
-          type        : WSMessageType.AUTH
+          access_token: process.env.HA_TOKEN,
+          type        : WsMessageType.AUTH
         })
       );
       break;
-    case WSMessageType.EVENT:{
+    case WsMessageType.EVENT:{
       const { entity_id, new_state } = parsedData.event.data;
-      useMessage(entity_id, new_state);
+      useMessage(entity_id, new_state, true);
       break;
     }
-    case WSMessageType.RESULT:
+    case WsMessageType.RESULT:
       if (parsedData.result) {
         for (const data of forceArray(parsedData.result) ){
-          useMessage(data.entity_id, data);
+          useMessage(data.entity_id, data, false);
         };
       }
       break;
@@ -82,15 +68,15 @@ function handleUnsolicited(parsedData: any) { //TODO change any
  * @param {string} entityId          - The id of the entity that sent the message.
  * @param {any}    messageFromSocket - The message from Home Assistant.
  */
-function useMessage(entityId: string, messageFromSocket: any): void {//TODO change any
+function useMessage(entityId: string, messageFromSocket: any, isEvent: boolean): void {
   if (listeners[entityId]) {
-    const result = listeners[entityId](messageFromSocket);
+    const result = listeners[entityId]({ isEvent, newData: messageFromSocket });
     result && sendMessageToWebSocket( result );
   }
 }
 
 export function sendMessageToWebSocket(data = {} as {[key: string]: any}): void {
-  if (!data.type) data.type = WSMessageType.CALLSERVICE;
+  if (!data.type) data.type = WsMessageType.CALLSERVICE;
   ws.send(
     JSON.stringify({
       id: ++lastSentId,

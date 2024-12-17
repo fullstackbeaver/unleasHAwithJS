@@ -1,50 +1,57 @@
-import      { DMXsteps, DMXtransitionDurationInMs }     from "@settings/settings";
-import type { HaLightFromSocket,  SwitchState }         from "./HaTypes";
-import      { listenWebSocket, sendMessageToWebSocket } from "@infra/websocket";
-import      { Device }                                  from "./Device";
-import type { DeviceArguments }                         from "./Device";
+import      { listenWebSocket, sendMessageToWebSocket } from "@infra/websocket/websocket";
+import      { Device }                                  from "../Device";
+import type { DeviceArguments }                         from "../Device";
+import      { HaEntities }                              from "../entities";
+import type { SwitchState }                             from "../HaTypes";
+import type { UpdateFromSocketArgs }                    from "@infra/websocket/websocket.type";
 import      { setDmx }                                  from "@infra/artnet/artnet";
 
 interface LightArguments extends DeviceArguments {
-  dmxAddress?: number
-  max       ?: number
+  dmx ?: string
+  max ?: string
 }
 
-export const LIGHT = "light";
+if (!process.env.DMX_STEPS)                     throw new Error("DMX_STEPS is not defined");
+if (!process.env.DMX_TRANSITION_DURATION_IN_MS) throw new Error("DMX_TRANSITION_DURATION_IN_MS is not defined");
 
-export class Light extends Device {
+const DMXsteps                  = parseInt(process.env.DMX_STEPS);
+const DMXtransitionDurationInMs = parseInt(process.env.DMX_TRANSITION_DURATION_IN_MS);
+
+export class LightWsArtNet extends Device {
   private readonly dmxAddress: number | undefined;
-  private          gap = 0;
   private readonly max: number | undefined;
-  private          step = 0;
   private          transtion: NodeJS.Timer | undefined;
+  private          transitionSteps = [] as number[];
 
   constructor( name:string, args:object) {
     super({ name });
 
-    const { dmxAddress, max }       = args as LightArguments;
-    if (max)        this.max        = max;
-    if (dmxAddress) this.dmxAddress = dmxAddress;
-    listenWebSocket(LIGHT + "." + this.name, this.updateFromSocket.bind(this));
+    const { dmx, max }       = args as LightArguments;
+    if (max) this.max        = parseInt(max);
+    if (dmx) this.dmxAddress = parseInt(dmx);
+
+    listenWebSocket(HaEntities.LIGHT + "." + this.name, this.updateFromSocket.bind(this));
   }
 
   /**
    * Updates the light with new data from Home Assistant.
    * This method will call {updateValueWithTransition} with the new value.
    * @param {HaLightFromSocket} newData - The new data from Home Assistant.
+   * @param {boolean}           isEvent - Whether the update is an event from Home Assistant or not.
    *
    * @return {void}
    */
-  public updateFromSocket(newData: HaLightFromSocket, isEvent: boolean = false) {
-    this.setValue(this.getValueNewValue({
+  public updateFromSocket({ isEvent, newData }:UpdateFromSocketArgs) {
+    const target = this.getValueNewValue({
       brightness: newData.attributes.brightness,
       state     : newData.state
-    }));
+    });
     this.setContext(newData.context);
     if (isEvent) {
-      this.updateValueWithTransition(this.value);
+      this.updateValueWithTransition(target);
       return {};
     }
+    this.setValue(target);
     return this.updateValueAndMakeMessage();
   }
 
@@ -57,11 +64,13 @@ export class Light extends Device {
    * @return {void}
    */
   private updateValueWithTransition(newValue: number) {
+    console.log("updateValueWithTransition", newValue, this.value);
     if (newValue !== this.value) {
       clearInterval(this.transtion);
-      this.gap       = (newValue - this.value) / DMXsteps;
-      this.step      = 0;
-      this.transtion = setInterval(this.useTransition.bind(this), DMXtransitionDurationInMs);
+      const gap            = (newValue - this.value) / DMXsteps;
+      this.transitionSteps = [];
+      for (let i = 1; i <= DMXsteps; i++) { this.transitionSteps.push(this.value + (i * gap)); }
+      this.transtion = setInterval(this.useTransition.bind(this), DMXtransitionDurationInMs/DMXsteps);
     }
   }
 
@@ -73,10 +82,12 @@ export class Light extends Device {
    * @return {void}
    */
   private useTransition() {
-    this.step++;
-    this.incrementValue(this.gap);
-    this.setValue(Math.round(this.value));
-    this.step === DMXsteps && clearInterval(this.transtion);
+    if (this.transitionSteps.length === 0) {
+      clearInterval(this.transtion);
+      return;
+    }
+    const value = this.transitionSteps.shift();
+    this.setValue(Math.round(value as number));
     sendMessageToWebSocket(this.updateValueAndMakeMessage());
   };
 
@@ -91,8 +102,8 @@ export class Light extends Device {
    */
   private getValueNewValue({ state, brightness }: { state?: SwitchState, brightness?: number | null }): number {
     if (state === "off")     return 0;
-    if (!brightness)         brightness = 0;
     if (brightness === null) brightness = 255;
+    if (!brightness)         brightness = 0;
     if (this.max)            brightness = Math.round((this.max * brightness) / 255);
     return brightness;
   }
@@ -101,11 +112,11 @@ export class Light extends Device {
     this.dmxAddress && setDmx(this.dmxAddress, Math.round(this.value));
     return {
       context       : this.context,
-      domain        : LIGHT,
+      domain        : HaEntities.LIGHT,
       service       : "update_entity",
       "service_data": {
         brightness : this.value,
-        "entity_id": LIGHT + "." + this.name
+        "entity_id": HaEntities.LIGHT + "." + this.name
       }
     };
   }

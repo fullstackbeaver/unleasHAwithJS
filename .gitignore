@@ -2,4 +2,8 @@ node_modules
 settings/*.ts
 dmxHa.js
 bun.lockb
-coverage/
+coverage/lcov-report
+coverage/tmp
+CSV/*.csv
+config/*.yaml
+.env

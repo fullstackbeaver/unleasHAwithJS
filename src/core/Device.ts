@@ -1,10 +1,10 @@
-import type { HaNewStateFromSocket } from "./HaTypes";
+import type { UpdateFromSocketArgs } from "@infra/websocket/websocket.type";
 
 export type DeviceArguments = {
   name : string
 }
 
-export class Device {
+export abstract class Device {
   private readonly protectedName: string;
   private          protectedValue = 0;
   private          protectedContext:object | undefined;  //usefull for answer on HA's websocket
@@ -16,14 +16,6 @@ export class Device {
    */
   constructor({ name }: DeviceArguments) {
     this.protectedName = name;
-  }
-
-  /**
-   * Increment the value of the device.
-   * @param {number} gap - The value to add to the current value of the device.
-   */
-  incrementValue(gap:number) {
-    this.protectedValue += gap;
   }
 
   /**
@@ -75,11 +67,11 @@ export class Device {
    * Updates the device with new data from Home Assistant.
    * This method should be overridden by sub-classes.
    *
-   * @param {HaNewStateFromSocket} newData - The new data from Home Assistant.
+   * @param {UpdateFromSocketArgs} newData - The new data from Home Assistant.
    *
    * @return {object} The object to send to Home Assistant as a result of this update.
    */
-  updateFromSocket(newData: HaNewStateFromSocket) { //eslint-disable-line no-unused-vars
+  updateFromSocket(newData: UpdateFromSocketArgs) { //eslint-disable-line no-unused-vars
     return {};
   }
 }
