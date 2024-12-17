@@ -64,7 +64,6 @@ export class LightWsArtNet extends Device {
    * @return {void}
    */
   private updateValueWithTransition(newValue: number) {
-    console.log("updateValueWithTransition", newValue, this.value);
     if (newValue !== this.value) {
       clearInterval(this.transtion);
       const gap            = (newValue - this.value) / DMXsteps;
