@@ -104,40 +104,40 @@ export async function importEntities() {
   }
 }
 
-export async function importEntitiesAndCreateHaConfig() {
-  const filesToWrite = {
-    [HaEntities.COVER] : [] as string[],
-    [HaEntities.LIGHT] : [] as string[],
-    [HaEntities.SWITCH]: [] as string[]
-  };
-  for (const [haType, value] of Object.entries(await getFilesAsJSON())) {
-    switch (haType) {
-      case HaEntities.LIGHT:
-        filesToWrite[HaEntities.LIGHT] = value.map((data:BaseImportedDevive) => lightWsTemplate( {
-          ...data,
-          uuid: convertToUniqueId(data)
-        }));
-        break;
-      case HaEntities.SWITCH:
-        filesToWrite[HaEntities.SWITCH] = value.map((data:BaseImportedDevive) => switchWsTemplate( {
-          ...data,
-          uuid: convertToUniqueId(data)
-        }));
-        break;
-      case HaEntities.COVER:
-        filesToWrite[HaEntities.COVER] = value.map((data:BaseImportedDevive) => coverMqttTemplate( data.name, convertToUniqueId(data)));
-        break;
-      default:
-        throw new Error(`Unknown entity type: ${haType}`);
-    }
-  }
-  for (const [haType, value] of Object.entries(filesToWrite)) {
-    if (value.length === 0) continue;
-    await writeConfig(haType as HaEntities, value, haType !== HaEntities.COVER);
-  }
-  console.log("configuration files created !");
-  process.exit(0);
-}
+// export async function importEntitiesAndCreateHaConfig() {
+//   const filesToWrite = {
+//     [HaEntities.COVER] : [] as string[],
+//     [HaEntities.LIGHT] : [] as string[],
+//     [HaEntities.SWITCH]: [] as string[]
+//   };
+//   for (const [haType, value] of Object.entries(await getFilesAsJSON())) {
+//     switch (haType) {
+//       case HaEntities.LIGHT:
+//         filesToWrite[HaEntities.LIGHT] = value.map((data:BaseImportedDevive) => lightWsTemplate( {
+//           ...data,
+//           uuid: convertToUniqueId(data)
+//         }));
+//         break;
+//       case HaEntities.SWITCH:
+//         filesToWrite[HaEntities.SWITCH] = value.map((data:BaseImportedDevive) => switchWsTemplate( {
+//           ...data,
+//           uuid: convertToUniqueId(data)
+//         }));
+//         break;
+//       case HaEntities.COVER:
+//         filesToWrite[HaEntities.COVER] = value.map((data:BaseImportedDevive) => coverMqttTemplate( data.name, convertToUniqueId(data)));
+//         break;
+//       default:
+//         throw new Error(`Unknown entity type: ${haType}`);
+//     }
+//   }
+//   for (const [haType, value] of Object.entries(filesToWrite)) {
+//     if (value.length === 0) continue;
+//     await writeConfig(haType as HaEntities, value, haType !== HaEntities.COVER);
+//   }
+//   console.log("configuration files created !");
+//   process.exit(0);
+// }
 
 function defineProtocolCode(ha:Protocols, output:Protocols) {
   const haIndex     = [Protocols.WS, Protocols.MQTT];

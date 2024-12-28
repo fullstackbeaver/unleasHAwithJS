@@ -37,16 +37,16 @@ export function csvToJson(filePath: string): string {
  *
  * @return {void}
  */
-export async function writeConfig(filename: HaEntities, content: string[], platform: boolean) {
-  const plural = {
-    [HaEntities.COVER] : HaEntities.COVER,
-    [HaEntities.LIGHT] : HaEntities.LIGHT + "s",
-    [HaEntities.SWITCH]: HaEntities.SWITCH + "es"
-  };
-  content.unshift(platform
-    ? `- platform: template
-  ${plural[filename]}:`
-    : `- ${plural[filename]}:`
-  );
-  await Bun.write(process.cwd() + process.env.YAML_FOLDER + "/" + filename + ".yaml", content.join("\n"));
-}
+// export async function writeConfig(filename: HaEntities, content: string[], platform: boolean) {
+//   const plural = {
+//     [HaEntities.COVER] : HaEntities.COVER,
+//     [HaEntities.LIGHT] : HaEntities.LIGHT + "s",
+//     [HaEntities.SWITCH]: HaEntities.SWITCH + "es"
+//   };
+//   content.unshift(platform
+//     ? `- platform: template
+//   ${plural[filename]}:`
+//     : `- ${plural[filename]}:`
+//   );
+//   await Bun.write(process.cwd() + process.env.YAML_FOLDER + "/" + filename + ".yaml", content.join("\n"));
+// }
