@@ -1,3 +1,5 @@
+import { payload } from "@core/constants";
+
 /**
  * Generates an MQTT template for a cover device.
  *
@@ -14,12 +16,12 @@ export function coverMqttTemplate( name:string, uuid:string) {
     command_topic: "homeassistant/cover/${uuid}/command"
     position_topic: "homeassistant/cover/${uuid}"
     set_position_topic: "homeassistant/cover/${uuid}/set-position"
-    payload_open: "open"
-    payload_close: "close"
-    payload_stop: "stop"
-    state_opening: "open"
-    state_closing: "close"
-    state_stopped: "stop"
+    payload_open: "${payload.OPEN}"
+    payload_close: "${payload.CLOSE}"
+    payload_stop: "${payload.STOP}"
+    state_opening: "${payload.OPEN}""
+    state_closing: "${payload.CLOSE}"
+    state_stopped: "${payload.STOP}"
     optimistic: false
     position_template: >
       {% if not state_attr(entity_id, "current_position") %}

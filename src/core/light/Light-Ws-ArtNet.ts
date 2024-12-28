@@ -1,9 +1,11 @@
+import      { dmxTransitionInterval, getSteps }         from "@utils/transitions";
 import      { listenWebSocket, sendMessageToWebSocket } from "@infra/websocket/websocket";
 import      { Device }                                  from "../Device";
 import type { DeviceArguments }                         from "../Device";
 import      { HaEntities }                              from "../entities";
 import type { SwitchState }                             from "../HaTypes";
 import type { UpdateFromSocketArgs }                    from "@infra/websocket/websocket.type";
+import      { payload }                                 from "@core/constants";
 import      { setDmx }                                  from "@infra/artnet/artnet";
 
 interface LightArguments extends DeviceArguments {
@@ -11,23 +13,17 @@ interface LightArguments extends DeviceArguments {
   max ?: string
 }
 
-if (!process.env.DMX_STEPS)                     throw new Error("DMX_STEPS is not defined");
-if (!process.env.DMX_TRANSITION_DURATION_IN_MS) throw new Error("DMX_TRANSITION_DURATION_IN_MS is not defined");
-
-const DMXsteps                  = parseInt(process.env.DMX_STEPS);
-const DMXtransitionDurationInMs = parseInt(process.env.DMX_TRANSITION_DURATION_IN_MS);
-
 export class LightWsArtNet extends Device {
   private readonly dmxAddress: number | undefined;
-  private readonly max: number | undefined;
-  private          transtion: NodeJS.Timer | undefined;
+  private readonly max:        number | undefined;
+  private          transtion:  NodeJS.Timer | undefined;
   private          transitionSteps = [] as number[];
 
   constructor( name:string, args:object) {
     super({ name });
 
     const { dmx, max }       = args as LightArguments;
-    if (max) this.max        = parseInt(max);
+    if (max) this.max        = Math.round((255 * parseInt(max)) / 100);
     if (dmx) this.dmxAddress = parseInt(dmx);
 
     listenWebSocket(HaEntities.LIGHT + "." + this.name, this.updateFromSocket.bind(this));
@@ -64,24 +60,27 @@ export class LightWsArtNet extends Device {
    * @return {void}
    */
   private updateValueWithTransition(newValue: number) {
+    console.log("updateValueWithTransition", newValue);
     if (newValue !== this.value) {
+      console.log("accepted" );
       clearInterval(this.transtion);
-      const gap            = (newValue - this.value) / DMXsteps;
-      this.transitionSteps = [];
-      for (let i = 1; i <= DMXsteps; i++) { this.transitionSteps.push(this.value + (i * gap)); }
-      this.transtion = setInterval(this.useTransition.bind(this), DMXtransitionDurationInMs/DMXsteps);
+      this.transitionSteps = getSteps(this.value, newValue);
+      this.transtion       = setInterval(this.useTransition.bind(this), dmxTransitionInterval);
     }
   }
 
   /**
    * Updates the DMX value with a transition.
-   * This method will be called every {DMXtransitionDurationInMs} ms until the transition is complete.
+   * This method will be called every {DMXtransiti
+   * onDurationInMs} ms until the transition is complete.
    * It will update the DMX value and send a Home Assistant update message with the new state.
    *
    * @return {void}
    */
   private useTransition() {
+    console.log("useTransition");
     if (this.transitionSteps.length === 0) {
+      console.log("fin");
       clearInterval(this.transtion);
       return;
     }
@@ -100,10 +99,10 @@ export class LightWsArtNet extends Device {
    * @return {number} The new value of the light.
    */
   private getValueNewValue({ state, brightness }: { state?: SwitchState, brightness?: number | null }): number {
-    if (state === "off")     return 0;
-    if (brightness === null) brightness = 255;
-    if (!brightness)         brightness = 0;
-    if (this.max)            brightness = Math.round((this.max * brightness) / 255);
+    if (state === payload.OFF) return 0;
+    if (brightness === null)   brightness = 255;
+    if (!brightness)           brightness = 0;
+    if (this.max)              brightness = Math.round((this.max * brightness) / 255);
     return brightness;
   }
 

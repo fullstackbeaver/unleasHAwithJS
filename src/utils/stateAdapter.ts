@@ -1,3 +1,5 @@
+import { payload } from "@core/constants";
+
 /**
  * Converts a boolean value to a numeric representation.
  *
@@ -6,7 +8,7 @@
  * @return {number} The numeric representation of the state.
  */
 export function onOffToValue(state:"on"|"off"): number {
-  return state === "off" ? 0 : 255;
+  return state === payload.OFF ? 0 : 255;
 }
 
 export function forceArray<T>(value: T | T[]): T[] {

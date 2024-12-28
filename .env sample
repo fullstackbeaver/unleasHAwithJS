@@ -1,6 +1,6 @@
 #folders paths
-CSV_FOLDER=/CSV
-YAML_FOLDER=/config
+CSV_FOLDER=
+YAML_FOLDER=
 
 #Home assistant configuration
 HA_TOKEN=
@@ -8,8 +8,7 @@ HA_ADDRESS=
 
 #ArtNet settings
 ARTNET_HOST=
-DMX_TRANSITION_DURATION_IN_MS=750
-DMX_STEPS=10
+ARTNET_DMX_FPS=
 
 #MQTT settings
 MQTT_ADDRESS=

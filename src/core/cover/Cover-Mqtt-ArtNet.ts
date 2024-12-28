@@ -3,6 +3,7 @@ import      { publish, subscribe, unsubscribe }      from "@infra/mqtt/mqtt";
 import      { Device }                               from "../Device";
 import type { DeviceArguments }                      from "../Device";
 import      { HaEntities }                           from "../entities";
+import      { payload }                              from "@core/constants";
 import      { setDmx }                               from "@infra/artnet/artnet";
 
 interface CoverArguments extends DeviceArguments {
@@ -21,7 +22,7 @@ export class CoverMqttArtNet extends Device{
   private          isMoving      ?: NodeJS.Timer;
   private readonly movingDuration : number;            // duration in ms
   private          stateCode       = 0;                // 0: stopped 1: closing, 1: opening
-  private readonly stateStrings    = ["stopped", "closing", "opening", "closed", "open"];
+  private readonly stateStrings    = [payload.STOPPED, payload.CLOSING, payload.OPENING, payload.CLOSED, payload.OPEN];
   private readonly setPositionSlug = "/set-position";
   private          timeoutForCalibration?: NodeJS.Timer;
   private          transition = {
@@ -84,13 +85,13 @@ export class CoverMqttArtNet extends Device{
    */
   public command(msg: string) {
     switch (msg) {
-      case "close":
+      case payload.CLOSE:
         this.value < 255 && this.closing(255);
         break;
-      case "open":
+      case payload.OPEN:
         this.value > 0 && this.opening(0);
         break;
-      case "stop":
+      case payload.STOP:
         this.isMoving && this.stop();
         break;
       // case "":
