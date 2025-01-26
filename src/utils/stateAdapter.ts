@@ -1,4 +1,4 @@
-import { payload } from "@core/constants";
+import { payload } from "@core/ha.constants";
 
 /**
  * Converts a boolean value to a numeric representation.

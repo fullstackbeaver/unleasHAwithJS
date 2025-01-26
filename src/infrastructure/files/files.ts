@@ -1,10 +1,9 @@
-import { HaEntities }         from "@core/entities";
 import { convertToCamelCase } from "@utils/stringAdapter";
+import { haEntities }         from "@core/ha.constants";
 import { readFileSync }       from "fs";
 
 /**
  * Reads a CSV file and returns a JSON string.
- *
  * The first line of the file is supposed to contain the headers.
  *
  * @param {string} filePath - The path to the CSV file to read.
@@ -31,22 +30,22 @@ export function csvToJson(filePath: string): string {
  *
  * Depending on the platform flag, the content is prepended with a platform-specific header.
  *
- * @param {HaEntities} filename - The entity type (e.g., COVER, LIGHT, SWITCH) used to name the YAML file.
+ * @param {haEntities} filename - The entity type (e.g., COVER, LIGHT, SWITCH) used to name the YAML file.
  * @param {string[]}   content  - The configuration content to write into the YAML file.
  * @param {boolean}    platform - Determines whether to include a platform header in the YAML content.
  *
  * @return {void}
  */
-// export async function writeConfig(filename: HaEntities, content: string[], platform: boolean) {
-//   const plural = {
-//     [HaEntities.COVER] : HaEntities.COVER,
-//     [HaEntities.LIGHT] : HaEntities.LIGHT + "s",
-//     [HaEntities.SWITCH]: HaEntities.SWITCH + "es"
-//   };
-//   content.unshift(platform
-//     ? `- platform: template
-//   ${plural[filename]}:`
-//     : `- ${plural[filename]}:`
-//   );
-//   await Bun.write(process.cwd() + process.env.YAML_FOLDER + "/" + filename + ".yaml", content.join("\n"));
-// }
+export async function writeConfig(filename: haEntities, content: string[], platform: boolean) {
+  const plural = {
+    [haEntities.COVER] : haEntities.COVER,
+    [haEntities.LIGHT] : haEntities.LIGHT + "s",
+    [haEntities.SWITCH]: haEntities.SWITCH + "es"
+  };
+  content.unshift(platform
+    ? `- platform: template
+  ${plural[filename]}:`
+    : `- ${plural[filename]}:`
+  );
+  await Bun.write(process.cwd() + process.env.YAML_FOLDER + "/" + filename + ".yaml", content.join("\n"));
+}

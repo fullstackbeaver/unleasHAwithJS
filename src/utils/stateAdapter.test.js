@@ -1,6 +1,6 @@
 import { convertFromPercent, convertToPercent, forceArray, onOffToValue } from "./stateAdapter";
 import { expect, test }                                                   from 'bun:test';
-import { payload }                                                        from '@core/constants';
+import { payload }                                                        from '@core/ha.constants';
 
 test("onOffToValue", () => {
   expect(onOffToValue(payload.ON)).toBe(255);

@@ -1,4 +1,4 @@
-import { payload } from "@core/constants";
+import { payload } from "@core/ha.constants";
 
 /**
  * Generates an MQTT template for a cover device.
@@ -19,7 +19,7 @@ export function coverMqttTemplate( name:string, uuid:string) {
     payload_open: "${payload.OPEN}"
     payload_close: "${payload.CLOSE}"
     payload_stop: "${payload.STOP}"
-    state_opening: "${payload.OPEN}""
+    state_opening: "${payload.OPEN}"
     state_closing: "${payload.CLOSE}"
     state_stopped: "${payload.STOP}"
     optimistic: false
