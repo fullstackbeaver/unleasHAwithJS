@@ -1,48 +1,36 @@
-import      { Device }               from "../Device";
-import type { DeviceArguments }      from "../Device";
-import      { HaEntities }           from "../entities";
-import type { UpdateFromSocketArgs } from "@infra/websocket/websocket.type";
-import      { listenWebSocket }      from "@infra/websocket/websocket";
-import      { setDmx }               from "@infra/artnet/artnet";
+import      { haEntities, haServices, payload } from "../ha.constants";
+import type { SwitchArguments }                 from "./switch.type";
+import type { UpdateFromSocketArgs }            from "@infra/websocket/websocket.type";
+import      { listenWebSocket }                 from "@infra/websocket/websocket";
+import      { setDmx }                          from "@infra/artnet/artnet";
 
-interface SwitchArguments extends DeviceArguments {
-  dmx: string
-}
+export function switchWsArtNet(args:SwitchArguments) {
+  const { deviceId, dmx } = args;
+  let state : boolean;
 
-export class SwitchWsArtNet extends Device{
-  private readonly dmx: number | undefined;
+  listenWebSocket(haEntities.LIGHT + "." + deviceId, updateFromSocket); //remettre bind(this) ?
 
-  constructor( name:string, args:SwitchArguments ) {
-    super({ name });
-    this.dmx = parseInt(args.dmx);
-    listenWebSocket(HaEntities.SWITCH + "." + this.name, this.updateFromSocket.bind(this));
+  function updateFromSocket({ newData }: UpdateFromSocketArgs) {
+    return {
+      ...update(newData.state === payload.ON),
+      context: newData.context
+    };
   }
 
-  public updateFromSocket({ newData }: UpdateFromSocketArgs) {
-    const value = newData.state === "on" ? 255 : 0;
-    this.dmx && setDmx(this.dmx, value);
-
+  function update(newValue: boolean) {
+    dmx && setDmx(dmx, newValue ? 255 : 0);
+    state = newValue;
     return {
-      context       : newData.context,
-      domain        : HaEntities.SWITCH,
-      service       : getService(value),
+      domain        : haEntities.SWITCH,
+      service       : newValue ? haServices.TURN_ON : haServices.TURN_OFF,
       "service_data": {
-        "entity_id": HaEntities.SWITCH + "." + this.name
+        "entity_id": haEntities.SWITCH + "." + deviceId
       }
     };
   }
-}
 
-/**
- * Returns the appropriate service name to call on Home Assistant for the given value.
- * If the value is truthy and greater than 0, returns "turn_on", otherwise returns "turn_off".
- *
- * @param {number} [value] - The value to check.
- *
- * @return {string} The service name to call.
- */
-function getService(value?: number) {
-  return (value && value > 0)
-    ? "turn_on"
-    : "turn_off";
+  return {
+    get isOn() { return state; },
+    update,
+  };
 }

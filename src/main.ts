@@ -1,7 +1,3 @@
 import { importEntities } from "@core/entities";
 
-// process.argv.includes("generate-ha-files")
-//   ? importEntitiesAndCreateHaConfig()
-//   : importEntities();
-
-importEntities();
+importEntities(process.argv.includes("generate-ha-files"));
