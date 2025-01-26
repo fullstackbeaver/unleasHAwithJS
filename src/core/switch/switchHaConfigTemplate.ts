@@ -1,35 +1,34 @@
+import type { BaseImportedDevice } from "@core/entities";
+
 /**
- * Generates a template based on the provided parameters.
+ * Generates a Home Assistant template for a switch device.
  *
- * @param {object} args          - The parameters for generating the switch template.
- * @param {string} args.deviceId - The device ID for the template.
- * @param {string} args.iconOFF  - The icon to display when the switch is off.
- * @param {string} args.iconON   - The icon to display when the switch is on.
- * @param {string} args.id       - The ID for the switch template.
- * @param {string} args.name     - The name for the switch template.
- * @param {string} args.uuid     - The unique ID for the switch template.
+ * @param {BaseImportedDevice} data          - The data of the switch device.
+ * @param {string}             data.deviceId - The device ID of the switch device.
+ * @param {string}             data.name     - The name of the switch device.
+ * @param {string}             data.uuid     - The unique identifier of the switch device.
  *
- * @return {string} The generated template.
+ * @return {string} The generated Home Assistant template.
  */
-export function switchWsTemplate({ deviceId, iconOFF, iconON, id, name, uuid }:{[key:string]:string}) {
+export function switchWsTemplate({ deviceId, name, uuid }:BaseImportedDevice) {
   // /!\ BE AWARE of need tabulations in the template to respect yaml specifications
   return `
     ${deviceId}:
       friendly_name: "${name}"
       unique_id: "${uuid}"
       turn_on:
-        service: switch.toggle
+        action: switch.toggle
         target:
-          entity_id: ${id}
+          entity_id: switch.${deviceId}
       turn_off:
-        service: switch.toggle
+        action: switch.toggle
         target:
-          entity_id: ${id}
+          entity_id: switch.${deviceId}
       icon_template: >-
-        {% if states('${id}', 'on') %}
-          mdi:${iconON}
+        {% if states('switch.${deviceId}', 'on') %}
+          mdi:toggle-switch-variant
         {% else %}
-          mdi:${iconOFF}
+          mdi:toggle-switch-variant_off
         {% endif %}
 `;
 }

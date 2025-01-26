@@ -1,31 +1,33 @@
+import type { BaseImportedDevice } from "@core/entities";
+
 /**
- * Generates a template based on the provided parameters.
+ * Generates a Home Assistant template for a light device.
  *
- * @param {Object} deviceId - The device ID for the template.
- * @param {Object} id       - The ID for the template.
- * @param {Object} name     - The name for the template.
- * @param {Object} uuid     - The unique ID for the template.
+ * @param {BaseImportedDevice} data          - The data of the light device.
+ * @param {string}             data.deviceId - The device ID of the light device.
+ * @param {string}             data.name     - The name of the light device.
+ * @param {string}             data.uuid     - The unique identifier of the light device.
  *
- * @return {string} The generated template.
+ * @return {string} The generated Home Assistant template.
  */
-export function lightWsTemplate({ deviceId, id, name, uuid }:{[key:string]:string}) {
+export function lightWsTemplate({ deviceId, name, uuid }:BaseImportedDevice) {
   // /!\ BE AWARE of need tabulations in the template to respect yaml specifications
   return `
     ${deviceId}:
       friendly_name: "${name}"
       unique_id: "${uuid}"
       turn_on:
-        service: switch.turn_on
+        action: switch.turn_on
         data:
-          entity_id: switch.${id}_switch
+          entity_id: switch.${uuid}_switch
       turn_off:
-        service: switch.turn_off
+        action: switch.turn_off
         data:
-          entity_id: switch.${id}_switch
+          entity_id: switch.${uuid}_switch
       set_level:
-        service: light.turn_on
+        action: light.turn_on
         data_template:
-          entity_id: light.${id}
+          entity_id: light.${uuid}
           brightness: "{{ brightness }}"
 `;
 }
