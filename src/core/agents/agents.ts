@@ -1,0 +1,14 @@
+// const agents = {} as {[key: string]: string};
+
+// who_cooks:
+//   name: Who cooks today
+//   options:
+//     - Paulus
+//     - Anne Therese
+//   initial: Anne Therese
+//   icon: mdi:panda
+// living_room_preset:
+//   options:
+//     - Visitors
+//     - Visitors with kids
+//     - Home Alone
