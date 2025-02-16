@@ -8,7 +8,7 @@ export function switchWsArtNet(args:SwitchArguments) {
   const { deviceId, dmx } = args;
   let state : boolean;
 
-  listenWebSocket(haEntities.LIGHT + "." + deviceId, updateFromSocket); //remettre bind(this) ?
+  listenWebSocket(haEntities.SWITCH + "." + deviceId, updateFromSocket); //remettre bind(this) ?
 
   function updateFromSocket({ newData }: UpdateFromSocketArgs) {
     return {
