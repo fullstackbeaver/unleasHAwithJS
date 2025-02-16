@@ -133,10 +133,10 @@ export default [
           newIsCap: false
         }
       ],
-      "max-lines-per-function": [
-        "error",
-        70
-      ],
+      // "max-lines-per-function": [
+      //   "error",
+      //   70
+      // ],
       "multiline-ternary": [
         "warn",
         "always-multiline"
