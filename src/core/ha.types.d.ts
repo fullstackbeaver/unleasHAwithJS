@@ -21,3 +21,5 @@ type CommonData = {
   context   : object
   attributes: object
 }
+
+export type HaEntities = "cover" | "input_select" | "light" | "sensor" | "switch"

@@ -1,12 +1,17 @@
 import type { BaseImportedDevice, DevicesFromCSV } from "./device/device.type";
-import type { LightArguments, LightFromCSV }       from "./light/light.type";
 import      { csvToJson, writeConfig }             from "@infra/files/files";
+import type { HaEntities }                         from "./ha.types";
+import type { LightFromCSV }                       from "./light/light.types";
 import      { convertToSnakeCase }                 from "src/utils/stringAdapter";
 import      { haEntities }                         from "./ha.constants";
-import      { lightWsArtNet }                      from "./light/light-Ws-ArtNet";
-import      { lightWsTemplate }                    from "./light/lightHaConfigTemplate";
 import      { readdir }                            from "node:fs/promises";
-import      { switchWsArtNet }                     from "./switch/Switch-Ws-ArNet";
+import type { SwitchFromCSV } from "./switch/switch.type";
+// import type { SwitchFromCSV }                      from "./switch/switch.type";
+// import      { lightWsArtNet }                      from "./light/light-Ws-ArtNet";
+// import      { parse }                              from "node:path";
+// import      { switchWsArtNet }                     from "./switch/Switch-Ws-ArNet";
+// import      { switchWsTemplate }                   from "./switch/switchHaConfigTemplate";
+// import      { lightWsTemplate }                    from "./light/lightHaConfigTemplate";
 // import      { CoverMqttArtNet }                    from "./cover/Cover-Mqtt-ArtNet";
 // import type { SwitchArguments }              from "./switch/Switch-Ws-ArNet";
 // import      { coverMqttTemplate }            from "./cover/coverHaConfigTemplate";
@@ -19,20 +24,21 @@ import      { switchWsArtNet }                     from "./switch/Switch-Ws-ArNe
 //   WS     = "WS"           // eslint-disable-line no-unused-vars
 // }
 
-const  entities:{[key:string]:Function } = {
-  // COVER_MQTT_ARTNET: CoverMqttArtNet, //TODO fix class
-  LIGHT_WS_ARTNET: lightWsArtNet,
-  // SENSOR_WS        : "Sensor-Ws",
-  SWITCH_WS_ARNET: switchWsArtNet,
-};
+type RegisteredEntity = {
+  [key: string]: {
+    create      : Function
+    useTemplate : Function
+  }
+}
 
+const csvPath      = process.cwd() + process.env.CSV_FOLDER;
 const entitiesList = {
   [haEntities.COVER] : {} as { [key: string]: Function },
   [haEntities.LIGHT] : {} as { [key: string]: Function },
   [haEntities.SWITCH]: {} as { [key: string]: Function }
 };
 
-const csvPath = process.cwd() + process.env.CSV_FOLDER;
+const entities = {} as RegisteredEntity;
 
 async function getFilesAsJSON() { //TODO use bun FS instead
   const files = {} as {[key:string]:unknown};
@@ -77,12 +83,28 @@ function getUniqueId({ area, room, type }:BaseImportedDevice): string {
 export async function importEntities(createConfig: boolean) {
   // console.log(await getFilesAsJSON());
 
-  function addToWrite(haType:haEntities, fn:Function, value:object) {
+  function addToWrite(haType:haEntities, value: BaseImportedDevice) { //TODO mettre LES bons types au lieu de BaseImportedDevice
+    console.log("addToWrite", haType, value);
+    if (!createConfig) return;
+    console.log("addToWrite", haType, "1");
+
     if (!filesToWrite[haType]) filesToWrite[haType] = [];
-    filesToWrite[haType].push(fn({
+
+    const templateFn = entities[value.entity]?.useTemplate;
+    if (templateFn === undefined) throw new Error(`no template for ${value.entity}`);
+    console.log("addToWrite", haType, "2");
+
+    filesToWrite[haType].push(templateFn({
       ...value,
       uuid: getUniqueId(value as BaseImportedDevice)
     }));
+  }
+
+  function addEntity(haType:HaEntities, key:string, value:any) {
+    console.log("addEntity", haType, key, value);
+    // if (!haType in entitiesList) return;
+    entitiesList[haType][key] = newEntity(value);
+    addToWrite(haType, value);
   }
 
   const filesToWrite:{[key:string]:string[]} = {};
@@ -99,21 +121,21 @@ export async function importEntities(createConfig: boolean) {
           break;
 
         case haEntities.LIGHT:
-          const reformated:any = value as LightFromCSV;
-
-          if (reformated.max === "") delete reformated.max;
-          else reformated.max = parseInt(reformated.max);
-
-          reformated.dmx            = parseInt(reformated.dmx);
-          entitiesList[haType][key] = newEntity(reformated as LightArguments);
-
-          createConfig && addToWrite(haType, lightWsTemplate, reformated );
+          if ((value as LightFromCSV).deviceId === "") break;
+          // entitiesList[haEntities.LIGHT][key] = newEntity(reformated);
+          // addToWrite(haEntities.LIGHT, lightWsTemplate, reformated );
+          addEntity(haEntities.LIGHT, key, {
+            ...value as LightFromCSV,
+            dmx: parseInt((value as LightFromCSV).dmx)
+          });
           break;
 
         case haEntities.SWITCH:
-          // for (const [key, value] of Object.entries(entry)) {
-          //   if (value.protoCode === 0) entitiesList[haType][key] = new SwitchWsArtNet(key, value satisfies SwitchArguments);
-          // }
+          console.log("Switch", (value as SwitchFromCSV).deviceId);
+
+          // entitiesList[haEntities.SWITCH][key] = newEntity(value as SwitchArguments);
+          // addToWrite(haEntities.SWITCH, switchWsTemplate, value as SwitchFromCSV);
+          addEntity(haEntities.SWITCH, key, value);
           break;
 
         default:
@@ -121,8 +143,12 @@ export async function importEntities(createConfig: boolean) {
       }
     }
 
+    // console.clear();
+    // console.log(entitiesList);
     if (createConfig) {
+      console.log("creating configuration files...", filesToWrite);
       for (const [haType, value] of Object.entries(filesToWrite)) {
+        console.log(haType, value.length);
         if (value.length === 0) continue;
         await writeConfig(haType as haEntities, value, haType !== haEntities.COVER);
       }
@@ -133,10 +159,14 @@ export async function importEntities(createConfig: boolean) {
 }
 
 function newEntity(args:any) {
-  console.log(args);
-  const entityType = args.entity as keyof typeof entities;
+  console.log("newEntity", args);
+  const entityType = args.entity;
   if (!entityType) throw new Error("entity type is required");
   const entity = entities[entityType];
   if ( entity === undefined) throw new Error(`entity type ${entityType} doe's not exist`);
-  return entity(args);
+  return entity.create(args);
+}
+
+export function registerEntity(name:string, create:Function, useTemplate:Function) {
+  entities[name] = { create, useTemplate };
 }
